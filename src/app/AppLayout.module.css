@@ -1,0 +1,66 @@
+.shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.skipLink {
+  position: absolute;
+  left: var(--space-4);
+  top: calc(-1 * var(--space-16));
+  z-index: 1;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--shape-full);
+  background: var(--primary);
+  color: var(--on-primary);
+  font: var(--type-label-large);
+  letter-spacing: var(--tracking-label-large);
+}
+
+.skipLink:focus {
+  top: var(--space-2);
+}
+
+.topBar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  min-height: var(--space-16);
+  padding: 0 var(--space-4);
+  background: var(--surface);
+  color: var(--on-surface);
+  border-bottom: var(--border-width) solid var(--outline-variant);
+}
+
+.appName {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  color: inherit;
+  text-decoration: none;
+  font: var(--type-title-large);
+  letter-spacing: var(--tracking-title-large);
+}
+
+.content {
+  flex: 1;
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--space-4);
+}
+
+.content:focus {
+  outline: none;
+}
+
+@media (min-width: 600px) {
+  .topBar {
+    padding: 0 var(--space-6);
+  }
+
+  .content {
+    padding: var(--space-6);
+  }
+}

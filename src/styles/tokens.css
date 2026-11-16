@@ -1,0 +1,209 @@
+/*
+ * Tokens de Material Base (Material Design 3, esquema azul).
+ *
+ * PROVISIONAL: este archivo debe generarse del sistema de diseño Material Base
+ * y no editarse a mano. Mientras llega el archivo generado, contiene los valores
+ * de referencia de Material 3 con semilla azul. Al reemplazarlo, conserva los
+ * mismos nombres de variables.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Color — tema claro */
+  --primary: #0061a4;
+  --on-primary: #ffffff;
+  --primary-container: #d1e4ff;
+  --on-primary-container: #001d36;
+  --secondary: #535f70;
+  --on-secondary: #ffffff;
+  --secondary-container: #d7e3f7;
+  --on-secondary-container: #101c2b;
+  --tertiary: #6b5778;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #f2daff;
+  --on-tertiary-container: #251431;
+  --error: #ba1a1a;
+  --on-error: #ffffff;
+  --error-container: #ffdad6;
+  --on-error-container: #410002;
+  --surface: #f8f9ff;
+  --on-surface: #191c20;
+  --on-surface-variant: #43474e;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f2f3f9;
+  --surface-container: #eceef4;
+  --surface-container-high: #e6e8ee;
+  --surface-container-highest: #e1e2e8;
+  --outline: #73777f;
+  --outline-variant: #c3c7cf;
+  --inverse-surface: #2e3135;
+  --inverse-on-surface: #eff0f7;
+  --inverse-primary: #9ecaff;
+  --shadow: #000000;
+  --scrim: #000000;
+
+  /* Opacidad de capas de estado */
+  --state-hover: 8%;
+  --state-focus: 10%;
+  --state-pressed: 10%;
+  --state-dragged: 16%;
+  --disabled-content: 38%;
+  --disabled-container: 12%;
+
+  /* Espaciado (retícula de 4 px) */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --touch-target: 48px;
+
+  /* Forma */
+  --shape-none: 0;
+  --shape-xs: 4px;
+  --shape-sm: 8px;
+  --shape-md: 12px;
+  --shape-lg: 16px;
+  --shape-xl: 28px;
+  --shape-full: 9999px;
+
+  /* Bordes y foco */
+  --border-width: 1px;
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --selected-border-width: 2px;
+
+  /* Elevación */
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px 0 rgb(0 0 0 / 30%), 0 1px 3px 1px rgb(0 0 0 / 15%);
+  --elevation-2: 0 1px 2px 0 rgb(0 0 0 / 30%), 0 2px 6px 2px rgb(0 0 0 / 15%);
+  --elevation-3: 0 1px 3px 0 rgb(0 0 0 / 30%), 0 4px 8px 3px rgb(0 0 0 / 15%);
+  --elevation-4: 0 2px 3px 0 rgb(0 0 0 / 30%), 0 6px 10px 4px rgb(0 0 0 / 15%);
+  --elevation-5: 0 4px 4px 0 rgb(0 0 0 / 30%), 0 8px 12px 6px rgb(0 0 0 / 15%);
+
+  /* Iconos */
+  --icon-size: 24px;
+  --icon-size-small: 18px;
+
+  /* Tipografía */
+  --font-sans: 'Roboto', system-ui, sans-serif;
+  --font-mono: 'Roboto Mono', ui-monospace, monospace;
+  --weight-regular: 400;
+  --weight-medium: 500;
+
+  --type-display-large: 400 57px/64px var(--font-sans);
+  --tracking-display-large: -0.25px;
+  --type-display-medium: 400 45px/52px var(--font-sans);
+  --tracking-display-medium: 0;
+  --type-display-small: 400 36px/44px var(--font-sans);
+  --tracking-display-small: 0;
+  --type-headline-large: 400 32px/40px var(--font-sans);
+  --tracking-headline-large: 0;
+  --type-headline-medium: 400 28px/36px var(--font-sans);
+  --tracking-headline-medium: 0;
+  --type-headline-small: 400 24px/32px var(--font-sans);
+  --tracking-headline-small: 0;
+  --type-title-large: 400 22px/28px var(--font-sans);
+  --tracking-title-large: 0;
+  --type-title-medium: 500 16px/24px var(--font-sans);
+  --tracking-title-medium: 0.15px;
+  --type-title-small: 500 14px/20px var(--font-sans);
+  --tracking-title-small: 0.1px;
+  --type-body-large: 400 16px/24px var(--font-sans);
+  --tracking-body-large: 0.5px;
+  --type-body-medium: 400 14px/20px var(--font-sans);
+  --tracking-body-medium: 0.25px;
+  --type-body-small: 400 12px/16px var(--font-sans);
+  --tracking-body-small: 0.4px;
+  --type-label-large: 500 14px/20px var(--font-sans);
+  --tracking-label-large: 0.1px;
+  --type-label-medium: 500 12px/16px var(--font-sans);
+  --tracking-label-medium: 0.5px;
+  --type-label-small: 500 11px/16px var(--font-sans);
+  --tracking-label-small: 0.5px;
+
+  /* Movimiento */
+  --motion-duration-short: 150ms;
+  --motion-duration-medium: 300ms;
+  --motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Diseño */
+  --content-max-width: 840px;
+  --breakpoint-medium: 600px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --primary: #9ecaff;
+    --on-primary: #003258;
+    --primary-container: #00497d;
+    --on-primary-container: #d1e4ff;
+    --secondary: #bbc7db;
+    --on-secondary: #253140;
+    --secondary-container: #3b4858;
+    --on-secondary-container: #d7e3f7;
+    --tertiary: #d6bee4;
+    --on-tertiary: #3b2948;
+    --tertiary-container: #523f5f;
+    --on-tertiary-container: #f2daff;
+    --error: #ffb4ab;
+    --on-error: #690005;
+    --error-container: #93000a;
+    --on-error-container: #ffdad6;
+    --surface: #111418;
+    --on-surface: #e1e2e8;
+    --on-surface-variant: #c3c7cf;
+    --surface-container-lowest: #0c0e13;
+    --surface-container-low: #191c20;
+    --surface-container: #1d2024;
+    --surface-container-high: #282a2f;
+    --surface-container-highest: #33353a;
+    --outline: #8d9199;
+    --outline-variant: #43474e;
+    --inverse-surface: #e1e2e8;
+    --inverse-on-surface: #2e3135;
+    --inverse-primary: #0061a4;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --primary: #9ecaff;
+  --on-primary: #003258;
+  --primary-container: #00497d;
+  --on-primary-container: #d1e4ff;
+  --secondary: #bbc7db;
+  --on-secondary: #253140;
+  --secondary-container: #3b4858;
+  --on-secondary-container: #d7e3f7;
+  --tertiary: #d6bee4;
+  --on-tertiary: #3b2948;
+  --tertiary-container: #523f5f;
+  --on-tertiary-container: #f2daff;
+  --error: #ffb4ab;
+  --on-error: #690005;
+  --error-container: #93000a;
+  --on-error-container: #ffdad6;
+  --surface: #111418;
+  --on-surface: #e1e2e8;
+  --on-surface-variant: #c3c7cf;
+  --surface-container-lowest: #0c0e13;
+  --surface-container-low: #191c20;
+  --surface-container: #1d2024;
+  --surface-container-high: #282a2f;
+  --surface-container-highest: #33353a;
+  --outline: #8d9199;
+  --outline-variant: #43474e;
+  --inverse-surface: #e1e2e8;
+  --inverse-on-surface: #2e3135;
+  --inverse-primary: #0061a4;
+}

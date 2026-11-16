@@ -1,0 +1,38 @@
+.list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  min-height: var(--touch-target);
+  padding: var(--space-3) var(--space-2);
+  border-radius: var(--shape-sm);
+  color: var(--on-surface);
+  text-decoration: none;
+}
+
+.item:hover {
+  background: color-mix(in srgb, var(--on-surface) var(--state-hover), transparent);
+}
+
+.number {
+  flex-shrink: 0;
+  min-width: var(--space-16);
+  color: var(--primary);
+  font: var(--type-label-large);
+  letter-spacing: var(--tracking-label-large);
+}
+
+.epigraph {
+  font: var(--type-body-medium);
+  letter-spacing: var(--tracking-body-medium);
+}
+
+.repealed {
+  color: var(--on-surface-variant);
+}

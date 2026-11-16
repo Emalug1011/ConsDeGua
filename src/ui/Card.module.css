@@ -1,0 +1,19 @@
+.card {
+  border-radius: var(--shape-md);
+  padding: var(--space-4);
+  color: var(--on-surface);
+}
+
+.elevated {
+  background: var(--surface-container-low);
+  box-shadow: var(--elevation-1);
+}
+
+.filled {
+  background: var(--surface-container-highest);
+}
+
+.outlined {
+  background: var(--surface);
+  border: var(--border-width) solid var(--outline-variant);
+}
