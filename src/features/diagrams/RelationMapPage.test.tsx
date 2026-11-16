@@ -2,16 +2,17 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { renderRoute } from '../../test/renderRoute'
-import { getRelated, getRelationsInfo, listArticles } from '../constitution/catalog'
+import { getRelated, listArticles } from '../constitution/catalog'
 import { track } from '../metrics/track'
 
 describe('RelationMapPage', () => {
-  it('muestra el artículo, la advertencia, el mapa y la lista de relaciones', () => {
+  it('muestra el artículo, el aviso corto, el mapa y la lista de relaciones', () => {
     const total = getRelated('138').articulos.length
     renderRoute('/relaciones/138')
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Artículo 138')
-    expect(screen.getByText(getRelationsInfo().advertencia)).toBeInTheDocument()
+    expect(screen.getByText('Validar sugerencia')).toBeInTheDocument()
+    expect(screen.queryByText(/No es doctrina ni fuente oficial/)).not.toBeInTheDocument()
     expect(screen.getByRole('region', { name: 'Mapa de relaciones de Artículo 138' })).toBeVisible()
     expect(screen.getByRole('heading', { name: `${total} relaciones` })).toBeInTheDocument()
     expect(track).toHaveBeenCalledWith('relation_map_open', { article_id: '138' })

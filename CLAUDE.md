@@ -54,7 +54,7 @@ El catálogo trae en `relaciones` un análisis de cómo se conectan los artícul
 
 Reglas:
 
-- Ese análisis **no es fuente oficial ni doctrina**: se elaboró con asistencia de IA y está marcado `verificado: false`. La interfaz muestra la advertencia de `relaciones.advertencia` en el mapa, presenta como "relación sugerida" todo lo que no sea `cita_textual` y permite filtrar por `cotejo`.
+- Ese análisis **no es fuente oficial ni doctrina**: se elaboró con asistencia de IA y está marcado `verificado: false`. La interfaz no muestra el texto de `relaciones.advertencia` (decisión de Emanuel del 16/11/2026): en la lista y en el mapa muestra solo el aviso "Validar sugerencia", presenta como "relación sugerida" todo lo que no sea `cita_textual` y permite filtrar por `cotejo`.
 - No agregues, quites ni reescribas relaciones por tu cuenta. Los cambios al análisis los decide Emanuel; tú solo los aplicas cuando te los pida, artículo por artículo.
 - Una prueba valida que todo `desde` y `hacia` exista en el catálogo, que no haya pares duplicados y que cada `tipo` y cada `cotejo` estén definidos.
 - Las relaciones que agregue una persona en sus propios diagramas viven en Firestore, dentro de su diagrama, y nunca se mezclan con las del catálogo.

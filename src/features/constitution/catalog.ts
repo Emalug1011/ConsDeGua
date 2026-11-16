@@ -251,18 +251,6 @@ export function getRelated(id: string): RelatedResult {
   return { articulos, bloques }
 }
 
-export interface RelationsInfo {
-  advertencia: string
-  verificado: boolean
-  tipos: Readonly<Record<string, string>>
-  cotejos: Readonly<Record<string, string>>
-}
-
-export function getRelationsInfo(): RelationsInfo {
-  const { advertencia, verificado, tipos, cotejos } = catalog.relaciones
-  return { advertencia, verificado, tipos, cotejos }
-}
-
 /** Solo para pruebas de integridad del catálogo. */
 export function getRawRelations(): Catalog['relaciones'] {
   return catalog.relaciones

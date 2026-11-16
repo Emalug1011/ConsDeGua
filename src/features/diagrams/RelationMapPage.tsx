@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { Icon } from '../../ui/Icon'
-import { getArticle, getRelated, getRelationsInfo } from '../constitution/catalog'
+import { getArticle, getRelated } from '../constitution/catalog'
 import { articleLabel } from '../constitution/format'
 import { RelationList } from '../constitution/RelationList'
 import { track } from '../metrics/track'
@@ -25,7 +25,6 @@ export function RelationMapPage() {
   const articleId = article?.id
   const [filters, setFilters] = useState<RelationFilters>(ALL_FILTERS)
   const graph = useMemo(() => buildRelationGraph(id, filters), [id, filters])
-  const { advertencia } = getRelationsInfo()
 
   useEffect(() => {
     if (articleId) track('relation_map_open', { article_id: articleId })
@@ -62,7 +61,7 @@ export function RelationMapPage() {
 
       <p className={styles.warning}>
         <Icon name="warning" size="small" />
-        <span>{advertencia}</span>
+        <span>Validar sugerencia</span>
       </p>
 
       {!hasRelations ? (
