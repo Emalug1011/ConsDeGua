@@ -22,6 +22,15 @@ class DOMMatrixReadOnlyStub {
 }
 globalThis.DOMMatrixReadOnly ??= DOMMatrixReadOnlyStub as unknown as typeof DOMMatrixReadOnly
 
+// jsdom no implementa showModal ni close de <dialog>.
+HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
+  this.open = true
+}
+HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
+  this.open = false
+  this.dispatchEvent(new Event('close'))
+}
+
 // jsdom no implementa scrollTo, que usa ScrollRestoration.
 window.scrollTo = vi.fn() as unknown as typeof window.scrollTo
 

@@ -1,8 +1,11 @@
 import { useMemo, useState } from 'react'
+import { Button } from '../../ui/Button'
 import { TextField } from '../../ui/TextField'
+import { track } from '../metrics/track'
 import { ArticleList } from './ArticleList'
 import { getCatalogInfo, search } from './catalog'
 import styles from './CatalogPage.module.css'
+import { ConstitutionPartsDialog } from './ConstitutionPartsDialog'
 import { StructureList } from './StructureList'
 
 const MIN_QUERY_LENGTH = 2
@@ -10,6 +13,7 @@ const RESULT_LIMIT = 50
 
 export function CatalogPage() {
   const [query, setQuery] = useState('')
+  const [partsOpen, setPartsOpen] = useState(false)
   const { ley } = getCatalogInfo()
   const trimmed = query.trim()
   const searching = trimmed.length >= MIN_QUERY_LENGTH || /^\d$/.test(trimmed)
@@ -20,7 +24,22 @@ export function CatalogPage() {
 
   return (
     <div className={styles.page}>
-      <h1 className="headline-small">{ley}</h1>
+      <header className={styles.header}>
+        <h1 className="headline-small">{ley}</h1>
+        <div>
+          <Button
+            variant="tonal"
+            icon="account_tree"
+            onClick={() => {
+              setPartsOpen(true)
+              track('constitution_parts_open')
+            }}
+          >
+            Ver sus tres partes
+          </Button>
+        </div>
+      </header>
+      <ConstitutionPartsDialog open={partsOpen} onClose={() => setPartsOpen(false)} />
 
       <search className={styles.search}>
         <TextField

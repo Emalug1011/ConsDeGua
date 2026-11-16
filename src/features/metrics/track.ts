@@ -10,6 +10,7 @@ export interface EventParams {
   login: { method: 'google' }
   article_open: { article_id: string }
   article_search: { result_count: number }
+  constitution_parts_open: undefined
   structure_map_open: undefined
   relation_map_open: { article_id: string }
   diagram_create: undefined
