@@ -7,10 +7,15 @@ import { CatalogPage } from '../features/constitution/CatalogPage'
 import { RelationMapPage } from '../features/diagrams/RelationMapPage'
 import { AppLayout } from './AppLayout'
 import { NotFoundPage } from './NotFoundPage'
+import { PublicLayout } from './PublicLayout'
 import { RouteError } from './RouteError'
 
 export const routes: RouteObject[] = [
-  { path: LOGIN_PATH, element: <LoginPage />, errorElement: <RouteError /> },
+  {
+    element: <PublicLayout />,
+    errorElement: <RouteError />,
+    children: [{ path: LOGIN_PATH, element: <LoginPage /> }],
+  },
   {
     path: '/',
     element: <RequireAuth />,

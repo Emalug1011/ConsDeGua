@@ -189,6 +189,7 @@ Reglas que no se negocian:
 - **Navegación.** Barra inferior en móvil con tres a cinco destinos; riel o cajón en pantallas anchas. Fondo `surface-container`, indicador activo en `secondary-container`. Barra superior en `surface` con título en `title-large`.
 - **Formularios.** Campos delineados, una columna, etiqueta siempre visible, texto de apoyo en `body-small`.
 - **Logotipo.** Bandera de Guatemala en franjas (celeste, blanco, celeste, sin escudo de armas) con un quetzal simplificado en la franja blanca, junto al nombre en texto (`AppLogo` de `src/ui/`) y como favicon (`public/favicon.svg`). El dibujo vive en `src/ui/brandMark.ts` y sus colores en los tokens `--flag-*` y `--quetzal-*`, iguales en ambos temas. El logotipo es decorativo: el nombre siempre va en texto al lado. Decisión de Emanuel del 16/11/2026.
+- **Pie de página.** En todas las páginas (también ingreso y errores): nombre de la app, "Desarrollado por emalug" y el correo de contacto, que salen de `DEVELOPER` en `src/config/app.ts`; no los escribas en duro en componentes.
 
 Componentes base en `src/ui/`: `Button` (relleno, tonal, delineado, texto), `TextField`, `Card` (elevada, rellena, delineada), `Chip`. Antes de crear un componente nuevo, revisa si se resuelve componiendo estos. El lienzo de React Flow y el editor de Tiptap también se estilizan con los tokens: nodos, conexiones, selección y barra de herramientas no usan los colores por defecto de la librería.
 

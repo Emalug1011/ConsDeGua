@@ -3,6 +3,7 @@ import { APP_NAME } from '../config/app'
 import { signOutUser } from '../features/auth/service'
 import { AppLogo } from '../ui/AppLogo'
 import { Button } from '../ui/Button'
+import { AppFooter } from './AppFooter'
 import styles from './AppLayout.module.css'
 import { ThemeToggle } from './ThemeToggle'
 
@@ -27,6 +28,7 @@ export function AppLayout() {
       <main id="contenido" className={styles.content} tabIndex={-1}>
         <Outlet />
       </main>
+      <AppFooter />
       {/* Al ir de un artículo a otro, la página empieza arriba. */}
       <ScrollRestoration />
     </div>

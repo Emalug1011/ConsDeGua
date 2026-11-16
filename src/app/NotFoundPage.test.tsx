@@ -1,5 +1,6 @@
 import { screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { setTestUser } from '../test/fakeAuthService'
 import { renderRoute } from '../test/renderRoute'
 
 describe('rutas', () => {
@@ -16,5 +17,24 @@ describe('logotipo', () => {
     const logo = home.querySelector('svg')
     expect(logo).not.toBeNull()
     expect(logo).toHaveAttribute('aria-hidden', 'true')
+  })
+})
+
+describe('pie de página', () => {
+  it('muestra los datos del desarrollador en las páginas con sesión', () => {
+    renderRoute('/articulo/1')
+    const footer = screen.getByRole('contentinfo')
+    expect(footer).toHaveTextContent('Desarrollado por emalug')
+    expect(screen.getByRole('link', { name: 'emazariegos98@gmail.com' })).toHaveAttribute(
+      'href',
+      'mailto:emazariegos98@gmail.com',
+    )
+  })
+
+  it('también aparece en la pantalla de ingreso', async () => {
+    setTestUser(null)
+    renderRoute('/ingresar')
+    await screen.findByRole('button', { name: 'Ingresar con Google' })
+    expect(screen.getByRole('contentinfo')).toHaveTextContent('Desarrollado por emalug')
   })
 })
