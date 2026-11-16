@@ -11,6 +11,10 @@ interface DialogProps {
   closeLabel?: string
   /** Acciones adicionales, antes del botón de cerrar. */
   actions?: ReactNode
+  /** `large` para contenido ancho, como un mapa. */
+  size?: 'default' | 'large'
+  /** Si cambia, el contenido vuelve arriba (por ejemplo, al pasar a otra vista). */
+  contentKey?: string
 }
 
 /** Diálogo modal sobre <dialog>: atrapa el foco, se cierra con Esc y devuelve el foco al cerrar. */
@@ -21,6 +25,8 @@ export function Dialog({
   children,
   closeLabel = 'Cerrar',
   actions,
+  size = 'default',
+  contentKey,
 }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
@@ -32,10 +38,14 @@ export function Dialog({
     if (!open && dialog.open) dialog.close()
   }, [open])
 
+  useEffect(() => {
+    if (ref.current) ref.current.scrollTop = 0
+  }, [contentKey])
+
   return (
     <dialog
       ref={ref}
-      className={styles.dialog}
+      className={`${styles.dialog} ${size === 'large' ? styles.large : ''}`}
       aria-labelledby={titleId}
       onClose={onClose}
       onClick={(event) => {

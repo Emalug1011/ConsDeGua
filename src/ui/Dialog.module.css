@@ -11,6 +11,10 @@
   overscroll-behavior: contain;
 }
 
+.large {
+  width: min(100% - 2 * var(--space-4), calc(var(--content-max-width) * 1.5));
+}
+
 .dialog::backdrop {
   background: color-mix(in srgb, var(--scrim) 32%, transparent);
 }

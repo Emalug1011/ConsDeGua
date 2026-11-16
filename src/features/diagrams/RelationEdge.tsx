@@ -5,7 +5,7 @@ import {
   type EdgeProps,
   type InternalNode,
 } from '@xyflow/react'
-import { ARROW_MARKER_ID, type RelationEdgeType } from './relationGraph'
+import type { RelationEdgeType } from './relationGraph'
 import styles from './RelationMap.module.css'
 
 const TYPE_CLASS: Record<string, string | undefined> = {
@@ -39,7 +39,7 @@ function borderPoint(node: InternalNode, toward: Point): Point {
 }
 
 /** Conexión del mapa de relaciones: trazo según el tipo y etiqueta de texto siempre visible. */
-export function RelationEdge({ id, source, target, data }: EdgeProps<RelationEdgeType>) {
+export function RelationEdge({ source, target, data }: EdgeProps<RelationEdgeType>) {
   const sourceNode = useInternalNode(source)
   const targetNode = useInternalNode(target)
   if (!sourceNode || !targetNode || !data) return null
@@ -58,10 +58,9 @@ export function RelationEdge({ id, source, target, data }: EdgeProps<RelationEdg
   return (
     <>
       <path
-        id={id}
         d={path}
         className={`${styles.edge} ${TYPE_CLASS[data.tipo] ?? ''}`}
-        markerEnd={data.directed ? `url(#${ARROW_MARKER_ID})` : undefined}
+        markerEnd={data.directed && data.markerId ? `url(#${data.markerId})` : undefined}
       />
       <EdgeLabelRenderer>
         <div

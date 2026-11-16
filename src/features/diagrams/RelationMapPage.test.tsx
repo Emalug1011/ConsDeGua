@@ -1,4 +1,4 @@
-import { act, screen, waitFor, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { renderRoute } from '../../test/renderRoute'
@@ -74,24 +74,44 @@ describe('RelationMapPage', () => {
     expect(router.state.location.pathname).toBe('/relaciones/138')
   })
 
-  it('desde el diálogo centra el mapa o abre el artículo', async () => {
+  it('centra el mapa en el diálogo, sin cambiar de página, y permite volver', async () => {
     const user = userEvent.setup()
     const neighbor = getRelated('138').articulos[0]!.articulo
     const { router } = renderRoute('/relaciones/138')
-    const open = async () => {
-      const buttons = screen.getAllByRole('button', {
-        name: new RegExp(`^Ver ${articleLabel(neighbor)}(:|$)`),
-      })
-      await user.click(buttons[buttons.length - 1]!)
-    }
 
-    await open()
+    const buttons = screen.getAllByRole('button', {
+      name: new RegExp(`^Ver ${articleLabel(neighbor)}(:|$)`),
+    })
+    await user.click(buttons[buttons.length - 1]!)
     await user.click(screen.getByRole('button', { name: 'Centrar el mapa aquí' }))
-    await waitFor(() => expect(router.state.location.pathname).toBe(`/relaciones/${neighbor.id}`))
 
-    await act(() => router.navigate('/relaciones/138'))
-    await open()
+    const mapDialog = screen.getByRole('dialog', {
+      name: `Mapa de relaciones de ${articleLabel(neighbor)}`,
+    })
+    expect(mapDialog).toHaveAttribute('open')
+    expect(
+      within(mapDialog).getByRole('region', {
+        name: `Mapa de relaciones de ${articleLabel(neighbor)}`,
+      }),
+    ).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/relaciones/138')
+    expect(track).toHaveBeenCalledWith('relation_map_open', { article_id: neighbor.id })
+
+    await user.click(within(mapDialog).getByRole('button', { name: 'Volver' }))
+    expect(screen.getByRole('dialog', { name: articleLabel(neighbor) })).toHaveAttribute('open')
+  })
+
+  it('desde el diálogo abre el artículo completo', async () => {
+    const user = userEvent.setup()
+    const neighbor = getRelated('138').articulos[0]!.articulo
+    const { router } = renderRoute('/relaciones/138')
+
+    const buttons = screen.getAllByRole('button', {
+      name: new RegExp(`^Ver ${articleLabel(neighbor)}(:|$)`),
+    })
+    await user.click(buttons[buttons.length - 1]!)
     await user.click(screen.getByRole('button', { name: 'Abrir artículo' }))
+
     await waitFor(() => expect(router.state.location.pathname).toBe(`/articulo/${neighbor.id}`))
   })
 
@@ -106,12 +126,23 @@ describe('RelationMapPage', () => {
     ).toBeInTheDocument()
   })
 
-  it('se abre desde la vista de artículo', async () => {
+  it('desde la vista de artículo se abre en un diálogo, sin cambiar de página', async () => {
     const user = userEvent.setup()
     const { router } = renderRoute('/articulo/138')
 
     await user.click(screen.getByRole('button', { name: 'Ver mapa de relaciones' }))
 
-    await waitFor(() => expect(router.state.location.pathname).toBe('/relaciones/138'))
+    const dialog = screen.getByRole('dialog', { name: 'Mapa de relaciones de Artículo 138' })
+    expect(dialog).toHaveAttribute('open')
+    expect(router.state.location.pathname).toBe('/articulo/138')
+
+    // Un artículo del mapa abre su vista previa dentro del mismo diálogo.
+    const neighbor = getRelated('138').articulos[0]!.articulo
+    const inMap = within(dialog).getAllByRole('button', {
+      name: new RegExp(`^Ver ${articleLabel(neighbor)}(:|$)`),
+    })
+    await user.click(inMap[inMap.length - 1]!)
+    expect(screen.getByRole('dialog', { name: articleLabel(neighbor) })).toHaveAttribute('open')
+    expect(router.state.location.pathname).toBe('/articulo/138')
   })
 })

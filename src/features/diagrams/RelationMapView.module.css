@@ -1,0 +1,25 @@
+.view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  color: var(--on-surface);
+}
+
+.warning {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  color: var(--on-surface-variant);
+  font: var(--type-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.empty {
+  color: var(--on-surface-variant);
+}
+
+.listSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

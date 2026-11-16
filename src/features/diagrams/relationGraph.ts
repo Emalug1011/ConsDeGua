@@ -20,7 +20,14 @@ export interface RelationFilters {
 
 export type ArticleNodeData = { article: Article; center: boolean }
 export type BlockNodeData = { label: string }
-export type RelationEdgeData = { tipo: string; cotejo: string; label: string; directed: boolean }
+export type RelationEdgeData = {
+  tipo: string
+  cotejo: string
+  label: string
+  directed: boolean
+  /** Id del marcador de flecha del lienzo donde se dibuja; lo asigna `RelationMap`. */
+  markerId?: string
+}
 
 export type ArticleNodeType = Node<ArticleNodeData, 'article'>
 export type BlockNodeType = Node<BlockNodeData, 'block'>
@@ -34,9 +41,6 @@ export interface RelationGraph {
   articulos: RelatedArticle[]
   bloques: RelatedBlock[]
 }
-
-/** Id del marcador SVG de flecha que usan las conexiones con dirección. */
-export const ARROW_MARKER_ID = 'relacion-flecha'
 
 const RING_RADIUS = 340
 const WIDE_RING_RADIUS = 400

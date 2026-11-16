@@ -1,9 +1,10 @@
 import { Controls, ReactFlow, type EdgeTypes, type NodeTypes } from '@xyflow/react'
+import { useId, useMemo } from 'react'
 import '@xyflow/react/dist/base.css'
 import { ArticleNode } from './ArticleNode'
 import { BlockNode } from './BlockNode'
 import { RelationEdge } from './RelationEdge'
-import { ARROW_MARKER_ID, type RelationEdgeType, type RelationNodeType } from './relationGraph'
+import type { RelationEdgeType, RelationNodeType } from './relationGraph'
 import styles from './RelationMap.module.css'
 
 const nodeTypes: NodeTypes = { article: ArticleNode, block: BlockNode }
@@ -26,12 +27,18 @@ interface RelationMapProps {
 
 /** Lienzo de solo lectura: se puede acercar y mover, no editar. */
 export function RelationMap({ nodes, edges, label }: RelationMapProps) {
+  // Id único por lienzo: puede haber un mapa en la página y otro en un diálogo.
+  const markerId = `flecha-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`
+  const edgesWithMarker = useMemo(
+    () => edges.map((edge) => (edge.data ? { ...edge, data: { ...edge.data, markerId } } : edge)),
+    [edges, markerId],
+  )
   return (
     <div className={styles.canvas} role="region" aria-label={label}>
       <svg className={styles.defs} aria-hidden="true">
         <defs>
           <marker
-            id={ARROW_MARKER_ID}
+            id={markerId}
             viewBox="0 0 10 10"
             refX="9"
             refY="5"
@@ -45,7 +52,7 @@ export function RelationMap({ nodes, edges, label }: RelationMapProps) {
       </svg>
       <ReactFlow
         nodes={nodes}
-        edges={edges}
+        edges={edgesWithMarker}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         nodeOrigin={[0.5, 0.5]}
