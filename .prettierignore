@@ -1,0 +1,6 @@
+dist
+coverage
+node_modules
+package-lock.json
+src/data/constitucion.json
+src/styles/tokens.css

@@ -26,3 +26,18 @@ yarn-error.log*
 
 # Environment files (local configs)
 /.env.*
+
+# Dependencias y build (Vite)
+node_modules
+dist
+dist-ssr
+coverage
+*.local
+
+# Editores y sistema
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.sw?
