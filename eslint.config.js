@@ -32,8 +32,8 @@ export default defineConfig([
               message: 'Lee el catálogo con features/constitution/catalog.ts.',
             },
             {
-              group: ['firebase', 'firebase/*'],
-              message: 'Usa el servicio de la feature (service.ts), no firebase/* directo.',
+              group: ['firebase', 'firebase/*', '**/config/firebase'],
+              message: 'Usa el servicio de la feature (service.ts), no Firebase directo.',
             },
           ],
         },
@@ -44,6 +44,20 @@ export default defineConfig([
     // Únicos puntos que pueden leer el JSON del catálogo.
     files: ['src/features/constitution/catalog.ts'],
     rules: { 'no-restricted-imports': 'off' },
+  },
+  {
+    // Únicos puntos que hablan con Firebase.
+    files: [
+      'src/config/firebase.ts',
+      'src/features/*/service.ts',
+      'src/features/metrics/track.ts',
+      'tests/rules/**',
+    ],
+    rules: { 'no-restricted-imports': 'off' },
+  },
+  {
+    files: ['tests/**/*.ts'],
+    languageOptions: { globals: globals.node },
   },
   {
     // En pruebas, una aserción `!` que falle rompe la prueba de inmediato.

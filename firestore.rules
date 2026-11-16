@@ -1,0 +1,63 @@
+rules_version = '2';
+
+// Todo se niega por defecto: cada colección se abre de forma explícita.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedInWithGoogle() {
+      return request.auth != null
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
+    }
+
+    function isSelf(uid) {
+      return signedInWithGoogle() && request.auth.uid == uid;
+    }
+
+    function optionalString(value, maxSize) {
+      return value == null || (value is string && value.size() <= maxSize);
+    }
+
+    function hasExactly(data, fields) {
+      return data.keys().hasAll(fields) && data.keys().hasOnly(fields);
+    }
+
+    // Día "yyyy-mm-dd" (zona America/Guatemala) cercano a la hora del servidor.
+    function isPlausibleDay(day) {
+      let parts = day.split('-');
+      let start = timestamp.date(int(parts[0]), int(parts[1]), int(parts[2]));
+      return day.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.time >= start - duration.value(1, 'd')
+        && request.time < start + duration.value(2, 'd');
+    }
+
+    match /users/{uid} {
+      allow read: if isSelf(uid);
+
+      allow create: if isSelf(uid)
+        && hasExactly(request.resource.data,
+             ['displayName', 'email', 'photoURL', 'createdAt', 'lastSeenAt'])
+        && request.resource.data.email == request.auth.token.email
+        && optionalString(request.resource.data.displayName, 200)
+        && optionalString(request.resource.data.photoURL, 2048)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.lastSeenAt == request.time;
+
+      allow update: if isSelf(uid)
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['displayName', 'photoURL', 'lastSeenAt'])
+        && optionalString(request.resource.data.displayName, 200)
+        && optionalString(request.resource.data.photoURL, 2048)
+        && request.resource.data.lastSeenAt == request.time;
+
+      allow delete: if false;
+    }
+
+    // Un documento por persona por día. Nadie lo lee ni lo cambia desde el cliente.
+    match /metrics_daily/{day}/users/{uid} {
+      allow create: if isSelf(uid)
+        && isPlausibleDay(day)
+        && hasExactly(request.resource.data, ['firstSeenAt'])
+        && request.resource.data.firstSeenAt == request.time;
+    }
+  }
+}

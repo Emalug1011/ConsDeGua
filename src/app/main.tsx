@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router/dom'
 import { APP_NAME } from '../config/app'
+import { AuthProvider } from '../features/auth/AuthProvider'
 import '../styles/base.css'
 import { router } from './router'
 
@@ -12,6 +13,8 @@ document.title = APP_NAME
 
 createRoot(rootElement).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </StrictMode>,
 )
