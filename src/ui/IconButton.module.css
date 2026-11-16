@@ -1,0 +1,41 @@
+.button {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: var(--space-10);
+  height: var(--space-10);
+  padding: 0;
+  border: none;
+  border-radius: var(--shape-full);
+  background: transparent;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  isolation: isolate;
+}
+
+/* Zona táctil mínima de 48 px */
+.button::after {
+  content: '';
+  position: absolute;
+  inset: calc((var(--space-10) - var(--touch-target)) / 2);
+}
+
+.button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  z-index: -1;
+  transition: opacity var(--motion-duration-short) var(--motion-easing-standard);
+}
+
+.button:hover::before {
+  opacity: var(--state-hover);
+}
+
+.button:focus-visible::before,
+.button:active::before {
+  opacity: var(--state-pressed);
+}

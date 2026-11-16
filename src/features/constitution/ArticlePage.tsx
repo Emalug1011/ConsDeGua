@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Link, useParams } from 'react-router'
 import { Chip } from '../../ui/Chip'
 import { track } from '../metrics/track'
+import { ArticlePager } from './ArticlePager'
 import { ArticleRelations } from './ArticleRelations'
 import { getArticle } from './catalog'
 import styles from './ArticlePage.module.css'
@@ -53,6 +54,8 @@ export function ArticlePage() {
           Texto cotejado con la edición digital 2020 de la Constitución.
         </p>
       </section>
+
+      <ArticlePager articleId={article.id} />
 
       <ArticleRelations articleId={article.id} />
     </article>

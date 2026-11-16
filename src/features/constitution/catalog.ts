@@ -29,6 +29,20 @@ export function getArticle(id: string): Article | undefined {
   return articlesById.get(id)
 }
 
+const indexById = new Map(catalog.articulos.map((article, index) => [article.id, index]))
+
+export interface AdjacentArticles {
+  anterior?: Article
+  siguiente?: Article
+}
+
+/** Artículos vecinos en el orden del catálogo: 1 a 281 y después T1 a T27. */
+export function getAdjacent(id: string): AdjacentArticles {
+  const index = indexById.get(id)
+  if (index === undefined) return {}
+  return { anterior: catalog.articulos[index - 1], siguiente: catalog.articulos[index + 1] }
+}
+
 export interface CatalogInfo {
   ley: string
   notas: readonly string[]

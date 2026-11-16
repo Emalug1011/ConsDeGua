@@ -22,8 +22,12 @@ class DOMMatrixReadOnlyStub {
 }
 globalThis.DOMMatrixReadOnly ??= DOMMatrixReadOnlyStub as unknown as typeof DOMMatrixReadOnly
 
+// jsdom no implementa scrollTo, que usa ScrollRestoration.
+window.scrollTo = vi.fn() as unknown as typeof window.scrollTo
+
 beforeEach(() => {
   localStorage.clear()
+  delete document.documentElement.dataset.theme
   setTestUser(TEST_USER)
 })
 

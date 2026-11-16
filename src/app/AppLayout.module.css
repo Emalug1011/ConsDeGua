@@ -45,6 +45,12 @@
   letter-spacing: var(--tracking-title-large);
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
 .content {
   flex: 1;
   width: 100%;
