@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router'
 import { APP_NAME } from '../../config/app'
+import { AppLogo } from '../../ui/AppLogo'
 import { Button } from '../../ui/Button'
 import { Icon } from '../../ui/Icon'
 import { track } from '../metrics/track'
@@ -46,6 +47,7 @@ export function LoginPage() {
   return (
     <main className={styles.page}>
       <div className={styles.panel}>
+        <AppLogo size="large" />
         <h1 className="headline-medium">{APP_NAME}</h1>
         <p className={styles.lead}>
           Estudia la Constitución Política de la República de Guatemala.

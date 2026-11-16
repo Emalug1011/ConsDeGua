@@ -1,6 +1,7 @@
 import { Link, Outlet, ScrollRestoration } from 'react-router'
 import { APP_NAME } from '../config/app'
 import { signOutUser } from '../features/auth/service'
+import { AppLogo } from '../ui/AppLogo'
 import { Button } from '../ui/Button'
 import styles from './AppLayout.module.css'
 import { ThemeToggle } from './ThemeToggle'
@@ -13,6 +14,7 @@ export function AppLayout() {
       </a>
       <header className={styles.topBar}>
         <Link to="/" className={styles.appName}>
+          <AppLogo />
           {APP_NAME}
         </Link>
         <div className={styles.actions}>

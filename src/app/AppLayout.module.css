@@ -38,6 +38,7 @@
 .appName {
   display: inline-flex;
   align-items: center;
+  gap: var(--space-3);
   min-height: var(--touch-target);
   color: inherit;
   text-decoration: none;

@@ -43,6 +43,15 @@
   --shadow: #000000;
   --scrim: #000000;
 
+  /* Marca: bandera de Guatemala y quetzal. Iguales en tema claro y oscuro.
+     public/favicon.svg repite estos valores: si cambian aquí, cámbialos allá. */
+  --flag-blue: #4997d0;
+  --flag-white: #ffffff;
+  --quetzal-green: #1e7a3c;
+  --quetzal-red: #c8102e;
+  --quetzal-beak: #e8b623;
+  --quetzal-eye: #1a1a1a;
+
   /* Opacidad de capas de estado */
   --state-hover: 8%;
   --state-focus: 10%;

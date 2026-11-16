@@ -1,0 +1,45 @@
+.logo {
+  flex-shrink: 0;
+  width: calc(var(--space-8) + var(--space-1));
+  height: var(--space-6);
+  border-radius: var(--shape-xs);
+  outline: var(--border-width) solid var(--outline-variant);
+  outline-offset: calc(-1 * var(--border-width));
+}
+
+.large {
+  width: calc(var(--space-12) + var(--space-6));
+  height: var(--space-12);
+  border-radius: var(--shape-sm);
+}
+
+.flagBlue {
+  fill: var(--flag-blue);
+}
+
+.flagWhite {
+  fill: var(--flag-white);
+}
+
+.green {
+  fill: var(--quetzal-green);
+}
+
+.tail {
+  fill: none;
+  stroke: var(--quetzal-green);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+.red {
+  fill: var(--quetzal-red);
+}
+
+.beak {
+  fill: var(--quetzal-beak);
+}
+
+.eye {
+  fill: var(--quetzal-eye);
+}
