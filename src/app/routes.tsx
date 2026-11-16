@@ -5,6 +5,7 @@ import { RequireAuth } from '../features/auth/RequireAuth'
 import { ArticlePage } from '../features/constitution/ArticlePage'
 import { CatalogPage } from '../features/constitution/CatalogPage'
 import { RelationMapPage } from '../features/diagrams/RelationMapPage'
+import { NotesPage } from '../features/notes/NotesPage'
 import { AppLayout } from './AppLayout'
 import { NotFoundPage } from './NotFoundPage'
 import { PublicLayout } from './PublicLayout'
@@ -27,6 +28,14 @@ export const routes: RouteObject[] = [
           { index: true, element: <CatalogPage /> },
           { path: 'articulo/:id', element: <ArticlePage /> },
           { path: 'relaciones/:id', element: <RelationMapPage /> },
+          { path: 'apuntes', element: <NotesPage /> },
+          {
+            // El editor (Tiptap) se descarga solo al abrir un apunte.
+            path: 'apuntes/:id',
+            lazy: async () => ({
+              Component: (await import('../features/notes/NoteEditorPage')).NoteEditorPage,
+            }),
+          },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

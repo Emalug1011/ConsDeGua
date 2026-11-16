@@ -10,12 +10,19 @@ import {
 } from '@firebase/rules-unit-testing'
 import {
   Timestamp,
+  collection,
   deleteDoc,
+  deleteField,
   doc,
   getDoc,
+  getDocs,
+  limit,
+  orderBy,
+  query,
   serverTimestamp,
   setDoc,
   updateDoc,
+  where,
   type Firestore,
 } from 'firebase/firestore'
 import { readFileSync } from 'node:fs'
@@ -218,6 +225,131 @@ describe('colecciones no declaradas', () => {
   it('se niegan por defecto', async () => {
     const db = googleDb(ALICE)
     await assertFails(setDoc(doc(db, 'diagrams', 'd1'), { ownerId: ALICE }))
-    await assertFails(getDoc(doc(db, 'notes', 'n1')))
+    await assertFails(getDoc(doc(db, 'diagrams', 'd1')))
+  })
+})
+
+describe('notes/{noteId}', () => {
+  const EMPTY_DOC = { type: 'doc', content: [{ type: 'paragraph' }] }
+
+  function newNote(ownerId: string, extra: Record<string, unknown> = {}) {
+    return {
+      ownerId,
+      title: 'Garantías del detenido',
+      content: EMPTY_DOC,
+      articleId: '7',
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      ...extra,
+    }
+  }
+
+  async function seedNote(id: string, ownerId: string, articleId = '7'): Promise<void> {
+    await env.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore() as unknown as Firestore
+      await setDoc(doc(db, 'notes', id), {
+        ownerId,
+        title: 'Apunte',
+        content: EMPTY_DOC,
+        articleId,
+        createdAt: Timestamp.fromDate(new Date('2026-01-01')),
+        updatedAt: Timestamp.fromDate(new Date('2026-01-01')),
+      })
+    })
+  }
+
+  it('la persona crea un apunte propio, con o sin artículo', async () => {
+    const db = googleDb(ALICE)
+    await assertSucceeds(setDoc(doc(db, 'notes', 'n1'), newNote(ALICE)))
+    const { articleId: _omit, ...withoutArticle } = newNote(ALICE)
+    void _omit
+    await assertSucceeds(setDoc(doc(db, 'notes', 'n2'), withoutArticle))
+    await assertSucceeds(setDoc(doc(db, 'notes', 'n3'), newNote(ALICE, { articleId: 'T27' })))
+  })
+
+  it('nadie crea un apunte a nombre de otra persona', async () => {
+    await assertFails(setDoc(doc(googleDb(BOB), 'notes', 'n1'), newNote(ALICE)))
+  })
+
+  it('rechaza sesiones que no son de Google y sin sesión', async () => {
+    await assertFails(setDoc(doc(passwordDb(ALICE), 'notes', 'n1'), newNote(ALICE)))
+    await assertFails(setDoc(doc(anonymousDb(), 'notes', 'n1'), newNote(ALICE)))
+  })
+
+  it('valida título, contenido, artículo, campos y fechas', async () => {
+    const db = googleDb(ALICE)
+    const ref = doc(db, 'notes', 'n1')
+    await assertFails(setDoc(ref, newNote(ALICE, { title: 'a'.repeat(201) })))
+    await assertFails(setDoc(ref, newNote(ALICE, { content: 'texto plano' })))
+    await assertFails(setDoc(ref, newNote(ALICE, { articleId: '282' })))
+    await assertFails(setDoc(ref, newNote(ALICE, { articleId: 'T28' })))
+    await assertFails(setDoc(ref, newNote(ALICE, { articleId: 7 })))
+    await assertFails(setDoc(ref, newNote(ALICE, { publico: true })))
+    await assertFails(
+      setDoc(ref, newNote(ALICE, { createdAt: Timestamp.fromDate(new Date('2020-01-01')) })),
+    )
+  })
+
+  it('solo la persona dueña lee su apunte', async () => {
+    await seedNote('n1', ALICE)
+    await assertSucceeds(getDoc(doc(googleDb(ALICE), 'notes', 'n1')))
+    await assertFails(getDoc(doc(googleDb(BOB), 'notes', 'n1')))
+    await assertFails(getDoc(doc(anonymousDb(), 'notes', 'n1')))
+  })
+
+  it('solo lista sus propios apuntes', async () => {
+    await seedNote('n1', ALICE)
+    await seedNote('n2', BOB)
+    const mine = query(
+      collection(googleDb(ALICE), 'notes'),
+      where('ownerId', '==', ALICE),
+      orderBy('updatedAt', 'desc'),
+      limit(50),
+    )
+    await assertSucceeds(getDocs(mine))
+    const byArticle = query(
+      collection(googleDb(ALICE), 'notes'),
+      where('ownerId', '==', ALICE),
+      where('articleId', '==', '7'),
+      orderBy('updatedAt', 'desc'),
+      limit(50),
+    )
+    await assertSucceeds(getDocs(byArticle))
+    // Pedir los de otra persona, o todos sin filtrar, se rechaza.
+    await assertFails(
+      getDocs(query(collection(googleDb(ALICE), 'notes'), where('ownerId', '==', BOB))),
+    )
+    await assertFails(getDocs(collection(googleDb(ALICE), 'notes')))
+  })
+
+  it('la persona edita su apunte y puede quitarle el artículo', async () => {
+    await seedNote('n1', ALICE)
+    const ref = doc(googleDb(ALICE), 'notes', 'n1')
+    await assertSucceeds(
+      updateDoc(ref, { title: 'Nuevo título', content: EMPTY_DOC, updatedAt: serverTimestamp() }),
+    )
+    await assertSucceeds(updateDoc(ref, { articleId: deleteField(), updatedAt: serverTimestamp() }))
+  })
+
+  it('no se puede cambiar el dueño ni la fecha de creación, ni omitir updatedAt', async () => {
+    await seedNote('n1', ALICE)
+    const ref = doc(googleDb(ALICE), 'notes', 'n1')
+    await assertFails(updateDoc(ref, { ownerId: BOB, updatedAt: serverTimestamp() }))
+    await assertFails(
+      updateDoc(ref, { createdAt: serverTimestamp(), updatedAt: serverTimestamp() }),
+    )
+    await assertFails(updateDoc(ref, { title: 'Sin fecha' }))
+  })
+
+  it('nadie edita ni borra el apunte de otra persona', async () => {
+    await seedNote('n1', ALICE)
+    const ref = doc(googleDb(BOB), 'notes', 'n1')
+    await assertFails(updateDoc(ref, { title: 'Ajeno', updatedAt: serverTimestamp() }))
+    await assertFails(deleteDoc(ref))
+  })
+
+  it('la persona borra su apunte', async () => {
+    await seedNote('n1', ALICE)
+    await assertSucceeds(deleteDoc(doc(googleDb(ALICE), 'notes', 'n1')))
   })
 })

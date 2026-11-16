@@ -21,6 +21,10 @@
     "deploy": "npm run build && firebase deploy --only firestore:rules,firestore:indexes,hosting"
   },
   "dependencies": {
+    "@tiptap/core": "^3.34.0",
+    "@tiptap/pm": "^3.34.0",
+    "@tiptap/react": "^3.34.0",
+    "@tiptap/starter-kit": "^3.34.0",
     "@xyflow/react": "^13.0.1",
     "firebase": "^13.3.0",
     "react": "^19.3.1",

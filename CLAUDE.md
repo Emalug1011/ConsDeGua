@@ -132,6 +132,7 @@ diagrams/{diagramId}
 
 notes/{noteId}
   ownerId, title, content (JSON de Tiptap), articleId?, diagramId?, createdAt, updatedAt
+  # diagramId todavía no se usa: se agrega a las reglas cuando existan los diagramas propios
 
 metrics_daily/{yyyy-mm-dd}/users/{uid}
   firstSeenAt        # un documento por persona por día
@@ -186,7 +187,7 @@ Reglas que no se negocian:
 - **Elevación.** Sombras solo en lo que flota (`elevation-1` en tarjeta elevada, `elevation-3` en FAB y diálogos).
 - **Foco.** Anillo de 2 px en `primary`, separado 2 px del control.
 - **Iconos.** Material Symbols Outlined, 24 px, peso 400, del color del texto que acompañan. Sin emoji ni caracteres Unicode como iconos.
-- **Navegación.** Barra inferior en móvil con tres a cinco destinos; riel o cajón en pantallas anchas. Fondo `surface-container`, indicador activo en `secondary-container`. Barra superior en `surface` con título en `title-large`.
+- **Navegación.** Barra inferior en móvil con tres a cinco destinos; riel o cajón en pantallas anchas. Fondo `surface-container`, indicador activo en `secondary-container`. Barra superior en `surface` con título en `title-large`. Mientras haya menos de tres destinos, la barra superior lleva el enlace "Mis apuntes"; el mapa de relaciones y la vista previa de artículos se abren en un diálogo, no en otra página.
 - **Formularios.** Campos delineados, una columna, etiqueta siempre visible, texto de apoyo en `body-small`.
 - **Logotipo.** Bandera de Guatemala en franjas (celeste, blanco, celeste, sin escudo de armas) con un quetzal simplificado en la franja blanca, junto al nombre en texto (`AppLogo` de `src/ui/`) y como favicon (`public/favicon.svg`). El dibujo vive en `src/ui/brandMark.ts` y sus colores en los tokens `--flag-*` y `--quetzal-*`, iguales en ambos temas. El logotipo es decorativo: el nombre siempre va en texto al lado. Decisión de Emanuel del 16/11/2026.
 - **Pie de página.** En todas las páginas (también ingreso y errores): nombre de la app, "Desarrollado por emalug" y el correo de contacto, que salen de `DEVELOPER` en `src/config/app.ts`; no los escribas en duro en componentes.

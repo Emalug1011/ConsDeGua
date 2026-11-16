@@ -59,5 +59,38 @@ service cloud.firestore {
         && hasExactly(request.resource.data, ['firstSeenAt'])
         && request.resource.data.firstSeenAt == request.time;
     }
+
+    // Id de un artículo del catálogo: "1" a "281" o "T1" a "T27".
+    function isArticleId(value) {
+      return value is string
+        && value.matches('^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-7][0-9]|28[01]|T([1-9]|1[0-9]|2[0-7]))$');
+    }
+
+    function isValidNote(data) {
+      return data.keys().hasAll(['ownerId', 'title', 'content', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['ownerId', 'title', 'content', 'articleId', 'createdAt', 'updatedAt'])
+        && data.title is string && data.title.size() <= 200
+        && data.content is map
+        && (!('articleId' in data) || isArticleId(data.articleId));
+    }
+
+    // Apuntes: cada persona ve y edita solo los suyos.
+    match /notes/{noteId} {
+      allow read, delete: if signedInWithGoogle()
+        && resource.data.ownerId == request.auth.uid;
+
+      allow create: if signedInWithGoogle()
+        && request.resource.data.ownerId == request.auth.uid
+        && isValidNote(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      allow update: if signedInWithGoogle()
+        && resource.data.ownerId == request.auth.uid
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time
+        && isValidNote(request.resource.data);
+    }
   }
 }

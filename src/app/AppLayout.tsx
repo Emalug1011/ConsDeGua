@@ -2,7 +2,7 @@ import { Link, Outlet, ScrollRestoration } from 'react-router'
 import { APP_NAME } from '../config/app'
 import { signOutUser } from '../features/auth/service'
 import { AppLogo } from '../ui/AppLogo'
-import { Button } from '../ui/Button'
+import { IconButton } from '../ui/IconButton'
 import { AppFooter } from './AppFooter'
 import styles from './AppLayout.module.css'
 import { ThemeToggle } from './ThemeToggle'
@@ -19,10 +19,11 @@ export function AppLayout() {
           {APP_NAME}
         </Link>
         <div className={styles.actions}>
+          <Link to="/apuntes" className={styles.navLink}>
+            Mis apuntes
+          </Link>
           <ThemeToggle />
-          <Button variant="text" icon="logout" onClick={() => void signOutUser()}>
-            Cerrar sesión
-          </Button>
+          <IconButton icon="logout" label="Cerrar sesión" onClick={() => void signOutUser()} />
         </div>
       </header>
       <main id="contenido" className={styles.content} tabIndex={-1}>

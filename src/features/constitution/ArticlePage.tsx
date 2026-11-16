@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Link, useParams } from 'react-router'
 import { Chip } from '../../ui/Chip'
 import { track } from '../metrics/track'
+import { ArticleNotes } from '../notes/ArticleNotes'
 import { ArticlePager } from './ArticlePager'
 import { ArticleRelations } from './ArticleRelations'
 import { getArticle } from './catalog'
@@ -56,6 +57,8 @@ export function ArticlePage() {
       </section>
 
       <ArticlePager articleId={article.id} />
+
+      <ArticleNotes articleId={article.id} />
 
       <ArticleRelations articleId={article.id} />
     </article>
