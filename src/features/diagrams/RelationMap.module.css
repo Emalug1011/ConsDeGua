@@ -1,0 +1,152 @@
+.canvas {
+  position: relative;
+  height: min(70dvh, calc(var(--space-16) * 9));
+  border: var(--border-width) solid var(--outline-variant);
+  border-radius: var(--shape-md);
+  background: var(--surface-container-low);
+  overflow: hidden;
+}
+
+.defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.arrow {
+  fill: var(--outline);
+}
+
+/* Lienzo de React Flow con los tokens, no con sus colores por defecto */
+.canvas :global(.react-flow) {
+  --xy-background-color: transparent;
+  background: transparent;
+}
+
+.canvas :global(.react-flow__node) {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.canvas :global(.react-flow__controls) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  box-shadow: none;
+}
+
+.canvas :global(.react-flow__controls-button) {
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border: var(--border-width) solid var(--outline-variant);
+  border-radius: var(--shape-full);
+  background: var(--surface-container-high);
+  color: var(--on-surface);
+  cursor: pointer;
+}
+
+.canvas :global(.react-flow__controls-button svg) {
+  width: var(--icon-size-small);
+  height: var(--icon-size-small);
+  fill: currentColor;
+}
+
+.canvas :global(.react-flow__controls-button:hover) {
+  background: color-mix(
+    in srgb,
+    var(--on-surface) var(--state-hover),
+    var(--surface-container-high)
+  );
+}
+
+.canvas :global(.react-flow__attribution) {
+  background: transparent;
+  color: var(--on-surface-variant);
+  font: var(--type-label-small);
+}
+
+.canvas :global(.react-flow__attribution a) {
+  color: inherit;
+}
+
+/* Nodos */
+.handle {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.node {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: calc(var(--space-16) * 3);
+  min-height: var(--touch-target);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width) solid var(--outline-variant);
+  border-radius: var(--shape-md);
+  background: var(--surface);
+  color: var(--on-surface);
+  text-decoration: none;
+}
+
+a.node:hover {
+  background: color-mix(in srgb, var(--on-surface) var(--state-hover), var(--surface));
+}
+
+.centerNode {
+  border: var(--selected-border-width) solid var(--primary);
+}
+
+.blockNode {
+  background: var(--surface-container);
+  border-style: dashed;
+}
+
+.nodeNumber {
+  color: var(--primary);
+  font: var(--type-label-large);
+  letter-spacing: var(--tracking-label-large);
+}
+
+.nodeEpigraph {
+  font: var(--type-body-medium);
+  letter-spacing: var(--tracking-body-medium);
+}
+
+/* Conexiones: cada tipo se distingue por el trazo y la etiqueta, no solo por color */
+.edge {
+  fill: none;
+  stroke: var(--outline);
+  stroke-width: var(--selected-border-width);
+}
+
+.edgeRemision {
+  stroke-width: var(--selected-border-width);
+}
+
+.edgeDesarrollo {
+  stroke-width: var(--border-width);
+}
+
+.edgeGarantia,
+.edgeLimite {
+  stroke-width: var(--selected-border-width);
+}
+
+.edgeTematica {
+  stroke-width: var(--border-width);
+  stroke-dasharray: var(--space-1) var(--space-1);
+}
+
+.edgeLabel {
+  position: absolute;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--shape-sm);
+  background: var(--surface-container-highest);
+  color: var(--on-surface);
+  font: var(--type-label-medium);
+  letter-spacing: var(--tracking-label-medium);
+  white-space: nowrap;
+  pointer-events: none;
+}

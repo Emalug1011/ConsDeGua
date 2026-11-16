@@ -1,16 +1,19 @@
-import { Link } from 'react-router'
+import { useNavigate } from 'react-router'
+import { Button } from '../../ui/Button'
 import { Icon } from '../../ui/Icon'
-import { getRelated } from './catalog'
 import styles from './ArticleRelations.module.css'
-import { articleLabel, articleShortLabel, relationPhrase } from './format'
-import { ReviewChip } from './ReviewChip'
+import { getRelated } from './catalog'
+import { RelationList } from './RelationList'
 
 interface ArticleRelationsProps {
   articleId: string
 }
 
+const articlePath = (id: string) => `/articulo/${id}`
+
 /** Relaciones del artículo según el análisis del catálogo (no oficial). */
 export function ArticleRelations({ articleId }: ArticleRelationsProps) {
+  const navigate = useNavigate()
   const { articulos, bloques } = getRelated(articleId)
 
   if (articulos.length === 0 && bloques.length === 0) return null
@@ -24,57 +27,16 @@ export function ArticleRelations({ articleId }: ArticleRelationsProps) {
         <Icon name="warning" size="small" />
         <span>Validar sugerencia</span>
       </p>
-
-      <ul className={styles.list}>
-        {articulos.map((relation) => (
-          <li
-            key={`${relation.articulo.id}-${relation.tipo}-${relation.sentido}`}
-            className={styles.item}
-          >
-            <p className={styles.phrase}>{relationPhrase(relation.tipo, relation.sentido)}</p>
-            <Link
-              to={`/articulo/${relation.articulo.id}`}
-              className={styles.link}
-              aria-label={`${articleLabel(relation.articulo)}${relation.articulo.epigrafe ? `: ${relation.articulo.epigrafe}` : ''}`}
-            >
-              <span className="label-large">{articleShortLabel(relation.articulo)}</span>
-              <span>{relation.articulo.epigrafe ?? 'Sin epígrafe'}</span>
-            </Link>
-            <p className={styles.note}>{relation.nota}</p>
-            <div>
-              <ReviewChip cotejo={relation.cotejo} />
-            </div>
-          </li>
-        ))}
-
-        {bloques.map((relation) => (
-          <li key={`bloque-${relation.articulo.id}-${relation.tipo}`} className={styles.item}>
-            <p className={styles.phrase}>
-              {relation.sentido === 'saliente'
-                ? `${relationPhrase(relation.tipo, 'saliente')} el bloque`
-                : `${relationPhrase(relation.tipo, 'entrante')} su bloque`}
-            </p>
-            <p className={styles.block}>
-              Título {relation.bloque.titulo}, capítulo {relation.bloque.capitulo} (artículos{' '}
-              {relation.bloque.desdeArticulo} a {relation.bloque.hastaArticulo})
-            </p>
-            {relation.sentido === 'entrante' && (
-              <Link
-                to={`/articulo/${relation.articulo.id}`}
-                className={styles.link}
-                aria-label={`${articleLabel(relation.articulo)}${relation.articulo.epigrafe ? `: ${relation.articulo.epigrafe}` : ''}`}
-              >
-                <span className="label-large">{articleShortLabel(relation.articulo)}</span>
-                <span>{relation.articulo.epigrafe ?? 'Sin epígrafe'}</span>
-              </Link>
-            )}
-            <p className={styles.note}>{relation.nota}</p>
-            <div>
-              <ReviewChip cotejo={relation.cotejo} />
-            </div>
-          </li>
-        ))}
-      </ul>
+      <div>
+        <Button
+          variant="tonal"
+          icon="hub"
+          onClick={() => void navigate(`/relaciones/${articleId}`)}
+        >
+          Ver mapa de relaciones
+        </Button>
+      </div>
+      <RelationList articulos={articulos} bloques={bloques} linkTo={articlePath} />
     </section>
   )
 }

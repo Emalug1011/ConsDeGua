@@ -10,6 +10,18 @@ vi.mock('../features/metrics/service', () => ({
 }))
 vi.mock('../features/metrics/track', () => ({ track: vi.fn() }))
 
+// jsdom no trae ResizeObserver ni DOMMatrixReadOnly, que usa React Flow.
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+globalThis.ResizeObserver ??= ResizeObserverStub
+class DOMMatrixReadOnlyStub {
+  m22 = 1
+}
+globalThis.DOMMatrixReadOnly ??= DOMMatrixReadOnlyStub as unknown as typeof DOMMatrixReadOnly
+
 beforeEach(() => {
   localStorage.clear()
   setTestUser(TEST_USER)
