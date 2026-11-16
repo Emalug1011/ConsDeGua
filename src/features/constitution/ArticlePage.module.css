@@ -29,6 +29,9 @@
 
 /* Texto literal de la Constitución: se distingue de todo texto redactado por personas. */
 .literal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
   padding-left: var(--space-4);
   border-left: var(--selected-border-width) solid var(--outline-variant);
 }
@@ -36,5 +39,10 @@
 .text {
   font: var(--type-body-large);
   letter-spacing: var(--tracking-body-large);
-  white-space: pre-line;
+}
+
+.source {
+  color: var(--on-surface-variant);
+  font: var(--type-body-small);
+  letter-spacing: var(--tracking-body-small);
 }

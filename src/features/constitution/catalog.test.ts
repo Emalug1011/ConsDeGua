@@ -31,9 +31,22 @@ describe('integridad del catálogo', () => {
     }
   })
 
-  it('solo las transitorias 23 a 27 no tienen epígrafe', () => {
+  it('solo el artículo 256 y las transitorias 23 a 27 no tienen epígrafe', () => {
     const withoutEpigraph = articles.filter((a) => a.epigrafe === null).map((a) => a.id)
-    expect(withoutEpigraph).toEqual(['T23', 'T24', 'T25', 'T26', 'T27'])
+    expect(withoutEpigraph).toEqual(['256', 'T23', 'T24', 'T25', 'T26', 'T27'])
+  })
+
+  it('ningún texto incluye la fórmula de cierre ni las firmas', () => {
+    expect(articles.filter((a) => /DADO EN EL SAL[ÓO]N/i.test(a.texto))).toEqual([])
+    expect(getArticle('T27')?.texto).toMatch(/deberá tomar las medidas pertinentes\.$/)
+  })
+
+  it('cada párrafo del texto tiene contenido', () => {
+    for (const article of articles) {
+      for (const paragraph of article.texto.split('\n')) {
+        expect(paragraph.trim(), article.id).not.toBe('')
+      }
+    }
   })
 
   it('solo el artículo 256 está derogado', () => {

@@ -1,22 +1,40 @@
 import { screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { renderRoute } from '../../test/renderRoute'
+import { track } from '../metrics/track'
 import { getArticle, getRelated } from './catalog'
 
 describe('ArticlePage', () => {
-  it('muestra número, epígrafe y texto del catálogo con el aviso de revisión', () => {
+  it('registra article_open solo con el id del artículo', () => {
+    renderRoute('/articulo/47')
+    expect(track).toHaveBeenCalledWith('article_open', { article_id: '47' })
+  })
+
+  it('muestra número, epígrafe y texto del catálogo con su fuente', () => {
     const article = getArticle('1')!
     renderRoute('/articulo/1')
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Artículo 1')
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(article.epigrafe!)
     expect(screen.getByText(article.texto)).toBeInTheDocument()
-    expect(screen.getByText(/Texto en revisión/)).toBeInTheDocument()
+    expect(screen.getByText(/Texto cotejado/)).toBeInTheDocument()
+    expect(screen.queryByText(/Texto en revisión/)).not.toBeInTheDocument()
   })
 
-  it('marca el artículo 256 como derogado', () => {
+  it('muestra cada párrafo del texto por separado', () => {
+    const article = getArticle('18')!
+    const paragraphs = article.texto.split('\n')
+    renderRoute('/articulo/18')
+
+    for (const paragraph of paragraphs) {
+      expect(screen.getByText(paragraph)).toBeInTheDocument()
+    }
+  })
+
+  it('marca el artículo 256 como derogado y sin epígrafe', () => {
     renderRoute('/articulo/256')
     expect(screen.getByText('Derogado')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Sin epígrafe')
   })
 
   it('muestra una disposición transitoria sin epígrafe', () => {
@@ -26,12 +44,13 @@ describe('ArticlePage', () => {
     expect(heading).toHaveTextContent('Sin epígrafe')
   })
 
-  it('muestra las relaciones con la advertencia y su nivel de cotejo', () => {
+  it('muestra las relaciones con el aviso corto, sin la advertencia larga', () => {
     const withRelations = ['44', '175', '278'].find((id) => getRelated(id).articulos.length > 0)!
     renderRoute(`/articulo/${withRelations}`)
 
     expect(screen.getByRole('heading', { name: 'Artículos relacionados' })).toBeInTheDocument()
-    expect(screen.getByText(/No es doctrina ni fuente oficial/)).toBeInTheDocument()
+    expect(screen.getByText('Validar sugerencia')).toBeInTheDocument()
+    expect(screen.queryByText(/No es doctrina ni fuente oficial/)).not.toBeInTheDocument()
   })
 
   it('avisa cuando el artículo no existe', () => {

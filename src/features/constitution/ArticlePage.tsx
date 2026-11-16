@@ -1,14 +1,20 @@
+import { useEffect } from 'react'
 import { Link, useParams } from 'react-router'
 import { Chip } from '../../ui/Chip'
+import { track } from '../metrics/track'
 import { ArticleRelations } from './ArticleRelations'
 import { getArticle } from './catalog'
 import styles from './ArticlePage.module.css'
 import { articleLabel, articleLocation } from './format'
-import { TextReviewNotice } from './TextReviewNotice'
 
 export function ArticlePage() {
   const { id = '' } = useParams()
   const article = getArticle(id)
+  const articleId = article?.id
+
+  useEffect(() => {
+    if (articleId) track('article_open', { article_id: articleId })
+  }, [articleId])
 
   if (!article) {
     return (
@@ -37,10 +43,15 @@ export function ArticlePage() {
         )}
       </header>
 
-      <TextReviewNotice />
-
       <section aria-label="Texto del artículo" className={styles.literal}>
-        <p className={styles.text}>{article.texto}</p>
+        {article.texto.split('\n').map((paragraph, index) => (
+          <p key={index} className={styles.text}>
+            {paragraph}
+          </p>
+        ))}
+        <p className={styles.source}>
+          Texto cotejado con la edición digital 2020 de la Constitución.
+        </p>
       </section>
 
       <ArticleRelations articleId={article.id} />

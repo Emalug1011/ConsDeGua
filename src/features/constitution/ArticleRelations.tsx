@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 import { Icon } from '../../ui/Icon'
-import { getRelated, getRelationsInfo } from './catalog'
+import { getRelated } from './catalog'
 import styles from './ArticleRelations.module.css'
 import { articleLabel, articleShortLabel, relationPhrase } from './format'
 import { ReviewChip } from './ReviewChip'
@@ -12,7 +12,6 @@ interface ArticleRelationsProps {
 /** Relaciones del artículo según el análisis del catálogo (no oficial). */
 export function ArticleRelations({ articleId }: ArticleRelationsProps) {
   const { articulos, bloques } = getRelated(articleId)
-  const { advertencia } = getRelationsInfo()
 
   if (articulos.length === 0 && bloques.length === 0) return null
 
@@ -23,7 +22,7 @@ export function ArticleRelations({ articleId }: ArticleRelationsProps) {
       </h2>
       <p className={styles.warning}>
         <Icon name="warning" size="small" />
-        <span>{advertencia}</span>
+        <span>Validar sugerencia</span>
       </p>
 
       <ul className={styles.list}>
