@@ -4,19 +4,54 @@ import { articleLabel, articleShortLabel, relationPhrase } from './format'
 import styles from './RelationList.module.css'
 import { ReviewChip } from './ReviewChip'
 
-interface RelationListProps {
+type RelationListProps = {
   articulos: readonly RelatedArticle[]
   bloques: readonly RelatedBlock[]
-  /** Destino del enlace de cada artículo relacionado. */
-  linkTo: (articleId: string) => string
-}
+} & (
+  | {
+      /** Destino del enlace de cada artículo relacionado. */
+      linkTo: (articleId: string) => string
+      onSelect?: never
+    }
+  | {
+      /** Abre el artículo relacionado sin salir de la página (por ejemplo, en un diálogo). */
+      onSelect: (articleId: string) => void
+      linkTo?: never
+    }
+)
 
 function accessibleName(article: Article): string {
   return `${articleLabel(article)}${article.epigrafe ? `: ${article.epigrafe}` : ''}`
 }
 
 /** Lista de relaciones con su frase, su nota y su nivel de cotejo. */
-export function RelationList({ articulos, bloques, linkTo }: RelationListProps) {
+export function RelationList({ articulos, bloques, linkTo, onSelect }: RelationListProps) {
+  const target = (article: Article) => {
+    const content = (
+      <>
+        <span className="label-large">{articleShortLabel(article)}</span>
+        <span>{article.epigrafe ?? 'Sin epígrafe'}</span>
+      </>
+    )
+    if (onSelect) {
+      return (
+        <button
+          type="button"
+          className={`${styles.link} ${styles.button}`}
+          onClick={() => onSelect(article.id)}
+          aria-label={`Ver ${accessibleName(article)}`}
+        >
+          {content}
+        </button>
+      )
+    }
+    return (
+      <Link to={linkTo(article.id)} className={styles.link} aria-label={accessibleName(article)}>
+        {content}
+      </Link>
+    )
+  }
+
   return (
     <ul className={styles.list}>
       {articulos.map((relation) => (
@@ -25,14 +60,7 @@ export function RelationList({ articulos, bloques, linkTo }: RelationListProps) 
           className={styles.item}
         >
           <p className={styles.phrase}>{relationPhrase(relation.tipo, relation.sentido)}</p>
-          <Link
-            to={linkTo(relation.articulo.id)}
-            className={styles.link}
-            aria-label={accessibleName(relation.articulo)}
-          >
-            <span className="label-large">{articleShortLabel(relation.articulo)}</span>
-            <span>{relation.articulo.epigrafe ?? 'Sin epígrafe'}</span>
-          </Link>
+          {target(relation.articulo)}
           <p className={styles.note}>{relation.nota}</p>
           <div>
             <ReviewChip cotejo={relation.cotejo} />
@@ -51,16 +79,7 @@ export function RelationList({ articulos, bloques, linkTo }: RelationListProps) 
             Título {relation.bloque.titulo}, capítulo {relation.bloque.capitulo} (artículos{' '}
             {relation.bloque.desdeArticulo} a {relation.bloque.hastaArticulo})
           </p>
-          {relation.sentido === 'entrante' && (
-            <Link
-              to={linkTo(relation.articulo.id)}
-              className={styles.link}
-              aria-label={accessibleName(relation.articulo)}
-            >
-              <span className="label-large">{articleShortLabel(relation.articulo)}</span>
-              <span>{relation.articulo.epigrafe ?? 'Sin epígrafe'}</span>
-            </Link>
-          )}
+          {relation.sentido === 'entrante' && target(relation.articulo)}
           <p className={styles.note}>{relation.nota}</p>
           <div>
             <ReviewChip cotejo={relation.cotejo} />

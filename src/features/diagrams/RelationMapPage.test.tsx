@@ -1,8 +1,9 @@
-import { screen, waitFor } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { renderRoute } from '../../test/renderRoute'
 import { getRelated, listArticles } from '../constitution/catalog'
+import { articleLabel } from '../constitution/format'
 import { track } from '../metrics/track'
 
 describe('RelationMapPage', () => {
@@ -50,19 +51,48 @@ describe('RelationMapPage', () => {
     expect(screen.queryByRole('region', { name: /Mapa de relaciones/ })).not.toBeInTheDocument()
   })
 
-  it('centra el mapa en otro artículo desde la lista', async () => {
+  it('abre el artículo relacionado en un diálogo sin salir del mapa', async () => {
+    const user = userEvent.setup()
+    const relation = getRelated('138').articulos[0]!
+    const neighbor = relation.articulo
+    const { router } = renderRoute('/relaciones/138')
+
+    const buttons = screen.getAllByRole('button', {
+      name: new RegExp(`^Ver ${articleLabel(neighbor)}(:|$)`),
+    })
+    await user.click(buttons[buttons.length - 1]!)
+
+    const dialog = screen.getByRole('dialog', { name: articleLabel(neighbor) })
+    expect(dialog).toHaveAttribute('open')
+    expect(router.state.location.pathname).toBe('/relaciones/138')
+    expect(within(dialog).getByText(neighbor.texto.split('\n')[0]!)).toBeInTheDocument()
+    expect(within(dialog).getByText(relation.nota)).toBeInTheDocument()
+    expect(track).toHaveBeenCalledWith('article_open', { article_id: neighbor.id })
+
+    await user.click(within(dialog).getByRole('button', { name: 'Cerrar' }))
+    expect(dialog).not.toHaveAttribute('open')
+    expect(router.state.location.pathname).toBe('/relaciones/138')
+  })
+
+  it('desde el diálogo centra el mapa o abre el artículo', async () => {
     const user = userEvent.setup()
     const neighbor = getRelated('138').articulos[0]!.articulo
     const { router } = renderRoute('/relaciones/138')
+    const open = async () => {
+      const buttons = screen.getAllByRole('button', {
+        name: new RegExp(`^Ver ${articleLabel(neighbor)}(:|$)`),
+      })
+      await user.click(buttons[buttons.length - 1]!)
+    }
 
-    const links = screen.getAllByRole('link', {
-      name: new RegExp(
-        `^${neighbor.transitorio ? 'Disposición transitoria' : 'Artículo'} ${neighbor.id.replace('T', '')}\\b`,
-      ),
-    })
-    await user.click(links[links.length - 1]!)
-
+    await open()
+    await user.click(screen.getByRole('button', { name: 'Centrar el mapa aquí' }))
     await waitFor(() => expect(router.state.location.pathname).toBe(`/relaciones/${neighbor.id}`))
+
+    await act(() => router.navigate('/relaciones/138'))
+    await open()
+    await user.click(screen.getByRole('button', { name: 'Abrir artículo' }))
+    await waitFor(() => expect(router.state.location.pathname).toBe(`/articulo/${neighbor.id}`))
   })
 
   it('avisa si el artículo no tiene relaciones', () => {

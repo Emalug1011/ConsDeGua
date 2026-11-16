@@ -1,0 +1,57 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.location {
+  font: var(--type-label-medium);
+  letter-spacing: var(--tracking-label-medium);
+}
+
+.epigraph {
+  color: var(--on-surface);
+  font: var(--type-title-medium);
+  letter-spacing: var(--tracking-title-medium);
+}
+
+.relations {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.relation {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--shape-md);
+  background: var(--surface-container-highest);
+}
+
+.phrase {
+  color: var(--on-surface);
+  font: var(--type-label-large);
+  letter-spacing: var(--tracking-label-large);
+}
+
+.note {
+  font: var(--type-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+/* Texto literal de la Constitución: se distingue de las notas del análisis. */
+.literal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-left: var(--space-4);
+  border-left: var(--selected-border-width) solid var(--outline-variant);
+  color: var(--on-surface);
+}
+
+.text {
+  font: var(--type-body-large);
+  letter-spacing: var(--tracking-body-large);
+}

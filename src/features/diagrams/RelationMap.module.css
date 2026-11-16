@@ -90,7 +90,13 @@
   text-decoration: none;
 }
 
-a.node:hover {
+button.node {
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+button.node:hover {
   background: color-mix(in srgb, var(--on-surface) var(--state-hover), var(--surface));
 }
 

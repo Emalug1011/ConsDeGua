@@ -9,10 +9,19 @@ interface DialogProps {
   children: ReactNode
   /** Texto del botón que cierra el diálogo. */
   closeLabel?: string
+  /** Acciones adicionales, antes del botón de cerrar. */
+  actions?: ReactNode
 }
 
 /** Diálogo modal sobre <dialog>: atrapa el foco, se cierra con Esc y devuelve el foco al cerrar. */
-export function Dialog({ open, onClose, title, children, closeLabel = 'Cerrar' }: DialogProps) {
+export function Dialog({
+  open,
+  onClose,
+  title,
+  children,
+  closeLabel = 'Cerrar',
+  actions,
+}: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
 
@@ -40,6 +49,7 @@ export function Dialog({ open, onClose, title, children, closeLabel = 'Cerrar' }
         </h2>
         <div className={styles.body}>{children}</div>
         <div className={styles.actions}>
+          {actions}
           <Button variant="text" onClick={onClose}>
             {closeLabel}
           </Button>

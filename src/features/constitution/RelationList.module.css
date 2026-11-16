@@ -31,6 +31,15 @@
   color: var(--primary);
 }
 
+.button {
+  border: none;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .block {
   font: var(--type-body-medium);
   letter-spacing: var(--tracking-body-medium);
