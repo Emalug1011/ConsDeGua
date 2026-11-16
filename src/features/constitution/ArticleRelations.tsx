@@ -1,22 +1,32 @@
+import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Button } from '../../ui/Button'
 import { Icon } from '../../ui/Icon'
+import { track } from '../metrics/track'
 import styles from './ArticleRelations.module.css'
-import { getRelated } from './catalog'
+import { getArticle, getRelated } from './catalog'
 import { RelationList } from './RelationList'
+import { RelationPreviewDialog } from './RelationPreviewDialog'
 
 interface ArticleRelationsProps {
   articleId: string
 }
 
-const articlePath = (id: string) => `/articulo/${id}`
-
 /** Relaciones del artículo según el análisis del catálogo (no oficial). */
 export function ArticleRelations({ articleId }: ArticleRelationsProps) {
   const navigate = useNavigate()
   const { articulos, bloques } = getRelated(articleId)
+  const [previewId, setPreviewId] = useState<string | null>(null)
+  const [previewOpen, setPreviewOpen] = useState(false)
 
-  if (articulos.length === 0 && bloques.length === 0) return null
+  const openPreview = useCallback((relatedId: string) => {
+    setPreviewId(relatedId)
+    setPreviewOpen(true)
+    track('article_open', { article_id: relatedId })
+  }, [])
+
+  const center = getArticle(articleId)
+  if (!center || (articulos.length === 0 && bloques.length === 0)) return null
 
   return (
     <section aria-labelledby="relaciones-titulo" className={styles.section}>
@@ -36,7 +46,16 @@ export function ArticleRelations({ articleId }: ArticleRelationsProps) {
           Ver mapa de relaciones
         </Button>
       </div>
-      <RelationList articulos={articulos} bloques={bloques} linkTo={articlePath} />
+      <RelationList articulos={articulos} bloques={bloques} onSelect={openPreview} />
+
+      <RelationPreviewDialog
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        article={previewId ? getArticle(previewId) : undefined}
+        center={center}
+        articulos={articulos.filter((r) => r.articulo.id === previewId)}
+        bloques={bloques.filter((r) => r.articulo.id === previewId)}
+      />
     </section>
   )
 }

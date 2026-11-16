@@ -1,4 +1,5 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { renderRoute } from '../../test/renderRoute'
 import { track } from '../metrics/track'
@@ -56,5 +57,26 @@ describe('ArticlePage', () => {
   it('avisa cuando el artículo no existe', () => {
     renderRoute('/articulo/999')
     expect(screen.getByRole('heading', { name: 'No encontramos ese artículo' })).toBeInTheDocument()
+  })
+})
+
+describe('artículos relacionados en la vista de artículo', () => {
+  it('abren un diálogo sin salir de la página', async () => {
+    const user = userEvent.setup()
+    const relation = getRelated('138').articulos[0]!
+    const label = relation.articulo.transitorio
+      ? `Disposición transitoria ${relation.articulo.id.slice(1)}`
+      : `Artículo ${relation.articulo.id}`
+    const { router } = renderRoute('/articulo/138')
+
+    await user.click(screen.getByRole('button', { name: new RegExp(`^Ver ${label}(:|$)`) }))
+
+    const dialog = screen.getByRole('dialog', { name: label })
+    expect(dialog).toHaveAttribute('open')
+    expect(within(dialog).getByText(relation.nota)).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/articulo/138')
+    expect(
+      screen.queryByRole('link', { name: new RegExp(`^${label}(:|$)`) }),
+    ).not.toBeInTheDocument()
   })
 })

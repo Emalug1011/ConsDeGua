@@ -2,9 +2,9 @@ import { useNavigate } from 'react-router'
 import { Button } from '../../ui/Button'
 import { Chip } from '../../ui/Chip'
 import { Dialog } from '../../ui/Dialog'
-import type { Article, RelatedArticle, RelatedBlock } from '../constitution/catalog'
-import { articleLabel, articleLocation, relationPhrase } from '../constitution/format'
-import { ReviewChip } from '../constitution/ReviewChip'
+import type { Article, RelatedArticle, RelatedBlock } from './catalog'
+import { articleLabel, articleLocation, relationPhrase } from './format'
+import { ReviewChip } from './ReviewChip'
 import styles from './RelationPreviewDialog.module.css'
 
 interface RelationPreviewDialogProps {
@@ -12,14 +12,14 @@ interface RelationPreviewDialogProps {
   onClose: () => void
   /** Artículo que se ve en el diálogo. */
   article: Article | undefined
-  /** Artículo central del mapa. */
+  /** Artículo desde el que se abrió la vista previa (el central del mapa o el de la página). */
   center: Article
   /** Relaciones entre el artículo central y el que se ve. */
   articulos: readonly RelatedArticle[]
   bloques: readonly RelatedBlock[]
 }
 
-/** Vista previa de un artículo relacionado, sin salir del mapa. */
+/** Vista previa de un artículo relacionado, sin salir de la página. */
 export function RelationPreviewDialog({
   open,
   onClose,
