@@ -18,7 +18,7 @@ describe('ArticlePage', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Artículo 1')
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(article.epigrafe!)
     expect(screen.getByText(article.texto)).toBeInTheDocument()
-    expect(screen.getByText(/Texto cotejado/)).toBeInTheDocument()
+    expect(screen.queryByText(/Texto cotejado/)).not.toBeInTheDocument()
     expect(screen.queryByText(/Texto en revisión/)).not.toBeInTheDocument()
   })
 

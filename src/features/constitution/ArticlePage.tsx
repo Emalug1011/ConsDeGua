@@ -53,9 +53,6 @@ export function ArticlePage() {
             {paragraph}
           </p>
         ))}
-        <p className={styles.source}>
-          Texto cotejado con la edición digital 2020 de la Constitución.
-        </p>
       </section>
 
       <ArticlePager articleId={article.id} />

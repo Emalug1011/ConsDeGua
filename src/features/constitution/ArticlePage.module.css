@@ -40,9 +40,3 @@
   font: var(--type-body-large);
   letter-spacing: var(--tracking-body-large);
 }
-
-.source {
-  color: var(--on-surface-variant);
-  font: var(--type-body-small);
-  letter-spacing: var(--tracking-body-small);
-}
