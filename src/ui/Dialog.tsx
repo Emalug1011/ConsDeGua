@@ -13,7 +13,7 @@ interface DialogProps {
   actions?: ReactNode
   /** `large` para contenido ancho, como un mapa. */
   size?: 'default' | 'large'
-  /** Si cambia, el contenido vuelve arriba (por ejemplo, al pasar a otra vista). */
+  /** Si cambia, el cuerpo vuelve arriba (por ejemplo, al pasar a otra vista). */
   contentKey?: string
 }
 
@@ -29,6 +29,7 @@ export function Dialog({
   contentKey,
 }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null)
+  const body = useRef<HTMLDivElement>(null)
   const titleId = useId()
 
   useEffect(() => {
@@ -39,7 +40,7 @@ export function Dialog({
   }, [open])
 
   useEffect(() => {
-    if (ref.current) ref.current.scrollTop = 0
+    if (body.current) body.current.scrollTop = 0
   }, [contentKey])
 
   return (
@@ -57,7 +58,9 @@ export function Dialog({
         <h2 id={titleId} className={styles.title}>
           {title}
         </h2>
-        <div className={styles.body}>{children}</div>
+        <div ref={body} className={styles.body}>
+          {children}
+        </div>
         <div className={styles.actions}>
           {actions}
           <Button variant="text" onClick={onClose}>

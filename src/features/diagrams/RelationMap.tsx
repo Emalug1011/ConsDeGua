@@ -1,8 +1,9 @@
 import { Controls, ReactFlow, type EdgeTypes, type NodeTypes } from '@xyflow/react'
-import { useId, useMemo } from 'react'
+import { useId, useMemo, useRef } from 'react'
 import '@xyflow/react/dist/base.css'
 import { ArticleNode } from './ArticleNode'
 import { BlockNode } from './BlockNode'
+import { FitViewOnResize } from './FitViewOnResize'
 import { RelationEdge } from './RelationEdge'
 import type { RelationEdgeType, RelationNodeType } from './relationGraph'
 import styles from './RelationMap.module.css'
@@ -33,8 +34,9 @@ export function RelationMap({ nodes, edges, label }: RelationMapProps) {
     () => edges.map((edge) => (edge.data ? { ...edge, data: { ...edge.data, markerId } } : edge)),
     [edges, markerId],
   )
+  const container = useRef<HTMLDivElement>(null)
   return (
-    <div className={styles.canvas} role="region" aria-label={label}>
+    <div ref={container} className={styles.canvas} role="region" aria-label={label}>
       <svg className={styles.defs} aria-hidden="true">
         <defs>
           <marker
@@ -70,6 +72,7 @@ export function RelationMap({ nodes, edges, label }: RelationMapProps) {
         ariaLabelConfig={ARIA_LABELS}
       >
         <Controls showInteractive={false} />
+        <FitViewOnResize container={container} />
       </ReactFlow>
     </div>
   )
