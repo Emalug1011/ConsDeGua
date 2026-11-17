@@ -4,7 +4,6 @@ import {
   getViewportForBounds,
   type EdgeTypes,
   type NodeTypes,
-  type Viewport,
 } from '@xyflow/react'
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import '@xyflow/react/dist/base.css'
@@ -62,7 +61,14 @@ export function RelationMap({ nodes, edges, label, compact = false }: RelationMa
     const observer = new ResizeObserver(([entry]) => {
       const width = entry?.contentRect.width ?? 0
       const height = entry?.contentRect.height ?? 0
-      setSize(width > 0 && height > 0 ? { width, height } : null)
+      // Redondeado para no volver a montar por diferencias de subpíxeles.
+      setSize((current) => {
+        if (width <= 0 || height <= 0) return null
+        const next = { width: Math.round(width), height: Math.round(height) }
+        return current && current.width === next.width && current.height === next.height
+          ? current
+          : next
+      })
     })
     observer.observe(element)
     return () => observer.disconnect()
@@ -78,13 +84,12 @@ export function RelationMap({ nodes, edges, label, compact = false }: RelationMa
         : null,
     [bounds, size],
   )
-  const [viewport, setViewport] = useState<Viewport | null>(null)
-  // Al cambiar el tamaño del lienzo o los nodos, se vuelve a centrar.
-  const [fittedFor, setFittedFor] = useState<Viewport | null>(null)
-  if (fitted !== fittedFor) {
-    setFittedFor(fitted)
-    setViewport(fitted)
-  }
+  // El encuadre se pasa como `defaultViewport` y el lienzo se vuelve a montar
+  // cuando cambia (tamaño, filtros o "Ajustar a la vista"). Un viewport
+  // controlado no sirve: al iniciar, React Flow emite su encuadre por defecto
+  // (zoom 1 en el origen) y en pantallas angostas pisaba el calculado.
+  const [resets, setResets] = useState(0)
+  const flowKey = fitted ? `${fitted.x}|${fitted.y}|${fitted.zoom}|${resets}` : ''
 
   return (
     <div
@@ -108,8 +113,9 @@ export function RelationMap({ nodes, edges, label, compact = false }: RelationMa
           </marker>
         </defs>
       </svg>
-      {viewport && (
+      {fitted && (
         <ReactFlow
+          key={flowKey}
           nodes={nodes}
           edges={edgesWithMarker}
           nodeTypes={nodeTypes}
@@ -123,13 +129,12 @@ export function RelationMap({ nodes, edges, label, compact = false }: RelationMa
           zoomOnScroll={false}
           zoomOnDoubleClick={false}
           preventScrolling={false}
-          viewport={viewport}
-          onViewportChange={setViewport}
+          defaultViewport={fitted}
           minZoom={MIN_ZOOM}
           maxZoom={MAX_ZOOM}
           ariaLabelConfig={ARIA_LABELS}
         >
-          <Controls showInteractive={false} onFitView={() => setViewport(fitted)} />
+          <Controls showInteractive={false} onFitView={() => setResets((count) => count + 1)} />
         </ReactFlow>
       )}
     </div>

@@ -1,6 +1,7 @@
 .canvas {
   position: relative;
-  height: min(70dvh, calc(var(--space-16) * 9));
+  /* svh: no cambia al ocultarse la barra del navegador en el celular. */
+  height: min(70svh, calc(var(--space-16) * 9));
   border: var(--border-width) solid var(--outline-variant);
   border-radius: var(--shape-md);
   background: var(--surface-container-low);
@@ -9,7 +10,7 @@
 
 /* Dentro de un diálogo: más bajo, para que el mapa se vea completo sin desplazarse. */
 .compact {
-  height: min(50dvh, calc(var(--space-16) * 7));
+  height: min(50svh, calc(var(--space-16) * 7));
 }
 
 .defs {
