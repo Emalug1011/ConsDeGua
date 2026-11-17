@@ -168,6 +168,57 @@ describe('users/{uid}', () => {
   })
 })
 
+describe('users/{uid}: ajustes de lectura', () => {
+  it('la persona activa y desactiva la opción sin tocar lastSeenAt', async () => {
+    await seedProfile(ALICE)
+    const ref = doc(googleDb(ALICE), 'users', ALICE)
+    await assertSucceeds(updateDoc(ref, { rememberReading: true }))
+    await assertSucceeds(
+      updateDoc(ref, {
+        rememberReading: false,
+        lastArticleId: deleteField(),
+        lastReadAt: deleteField(),
+      }),
+    )
+  })
+
+  it('guarda el último artículo leído solo con la opción activada', async () => {
+    await seedProfile(ALICE)
+    const ref = doc(googleDb(ALICE), 'users', ALICE)
+    await assertFails(updateDoc(ref, { lastArticleId: '47', lastReadAt: serverTimestamp() }))
+    await assertSucceeds(updateDoc(ref, { rememberReading: true }))
+    await assertSucceeds(updateDoc(ref, { lastArticleId: '47', lastReadAt: serverTimestamp() }))
+    await assertSucceeds(updateDoc(ref, { lastArticleId: 'T27', lastReadAt: serverTimestamp() }))
+  })
+
+  it('rechaza artículos inválidos, tipos incorrectos y fechas que no son del servidor', async () => {
+    await seedProfile(ALICE)
+    const ref = doc(googleDb(ALICE), 'users', ALICE)
+    await assertSucceeds(updateDoc(ref, { rememberReading: true }))
+    await assertFails(updateDoc(ref, { lastArticleId: '999', lastReadAt: serverTimestamp() }))
+    await assertFails(updateDoc(ref, { rememberReading: 'si' }))
+    await assertFails(
+      updateDoc(ref, {
+        lastArticleId: '47',
+        lastReadAt: Timestamp.fromDate(new Date('2020-01-01')),
+      }),
+    )
+  })
+
+  it('nadie cambia los ajustes de otra persona ni campos que no existen', async () => {
+    await seedProfile(ALICE)
+    await assertFails(updateDoc(doc(googleDb(BOB), 'users', ALICE), { rememberReading: true }))
+    await assertFails(updateDoc(doc(googleDb(ALICE), 'users', ALICE), { tema: 'oscuro' }))
+  })
+
+  it('lastSeenAt sigue exigiendo la hora del servidor', async () => {
+    await seedProfile(ALICE)
+    const ref = doc(googleDb(ALICE), 'users', ALICE)
+    await assertFails(updateDoc(ref, { lastSeenAt: Timestamp.fromDate(new Date('2020-01-01')) }))
+    await assertSucceeds(updateDoc(ref, { lastSeenAt: serverTimestamp() }))
+  })
+})
+
 describe('metrics_daily/{day}/users/{uid}', () => {
   const today = dayInGuatemala()
 

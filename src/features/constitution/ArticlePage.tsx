@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router'
 import { Chip } from '../../ui/Chip'
 import { track } from '../metrics/track'
 import { ArticleNotes } from '../notes/ArticleNotes'
+import { useRememberReading } from '../settings/useRememberReading'
 import { ArticlePager } from './ArticlePager'
 import { ArticleRelations } from './ArticleRelations'
 import { getArticle } from './catalog'
@@ -17,6 +18,7 @@ export function ArticlePage() {
   useEffect(() => {
     if (articleId) track('article_open', { article_id: articleId })
   }, [articleId])
+  useRememberReading(articleId)
 
   if (!article) {
     return (

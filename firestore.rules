@@ -21,6 +21,17 @@ service cloud.firestore {
       return data.keys().hasAll(fields) && data.keys().hasOnly(fields);
     }
 
+    // Id de un artículo del catálogo: "1" a "281" o "T1" a "T27".
+    function isArticleId(value) {
+      return value is string
+        && value.matches('^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-7][0-9]|28[01]|T([1-9]|1[0-9]|2[0-7]))$');
+    }
+
+    // Campos que cambia una actualización.
+    function changedKeys() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
     // Día "yyyy-mm-dd" (zona America/Guatemala) cercano a la hora del servidor.
     function isPlausibleDay(day) {
       let parts = day.split('-');
@@ -42,12 +53,23 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time
         && request.resource.data.lastSeenAt == request.time;
 
+      // Perfil (una vez al día) y ajustes de lectura. Cada grupo cambia por separado.
       allow update: if isSelf(uid)
-        && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['displayName', 'photoURL', 'lastSeenAt'])
+        && changedKeys().hasOnly(['displayName', 'photoURL', 'lastSeenAt',
+             'rememberReading', 'lastArticleId', 'lastReadAt'])
         && optionalString(request.resource.data.displayName, 200)
         && optionalString(request.resource.data.photoURL, 2048)
-        && request.resource.data.lastSeenAt == request.time;
+        && (!changedKeys().hasAny(['lastSeenAt'])
+             || request.resource.data.lastSeenAt == request.time)
+        && (!('rememberReading' in request.resource.data)
+             || request.resource.data.rememberReading is bool)
+        // El último artículo solo se guarda con la opción activada.
+        && (!('lastArticleId' in request.resource.data)
+             || (isArticleId(request.resource.data.lastArticleId)
+                 && request.resource.data.get('rememberReading', false) == true))
+        && (!changedKeys().hasAny(['lastReadAt'])
+             || !('lastReadAt' in request.resource.data)
+             || request.resource.data.lastReadAt == request.time);
 
       allow delete: if false;
     }
@@ -58,12 +80,6 @@ service cloud.firestore {
         && isPlausibleDay(day)
         && hasExactly(request.resource.data, ['firstSeenAt'])
         && request.resource.data.firstSeenAt == request.time;
-    }
-
-    // Id de un artículo del catálogo: "1" a "281" o "T1" a "T27".
-    function isArticleId(value) {
-      return value is string
-        && value.matches('^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-7][0-9]|28[01]|T([1-9]|1[0-9]|2[0-7]))$');
     }
 
     function isValidNote(data) {

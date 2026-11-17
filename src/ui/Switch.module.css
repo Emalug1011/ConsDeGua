@@ -1,0 +1,77 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--touch-target);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  color: var(--on-surface);
+  font: var(--type-body-large);
+  letter-spacing: var(--tracking-body-large);
+}
+
+.support {
+  color: var(--on-surface-variant);
+  font: var(--type-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.switch {
+  position: relative;
+  flex-shrink: 0;
+  width: calc(var(--space-12) + var(--space-1));
+  height: var(--space-8);
+  padding: 0;
+  border: var(--selected-border-width) solid var(--outline);
+  border-radius: var(--shape-full);
+  background: var(--surface-container-highest);
+  cursor: pointer;
+  transition: background var(--motion-duration-short) var(--motion-easing-standard);
+}
+
+/* Zona táctil mínima de 48 px */
+.switch::after {
+  content: '';
+  position: absolute;
+  inset: calc((var(--space-8) - var(--touch-target)) / 2);
+}
+
+.thumb {
+  position: absolute;
+  top: 50%;
+  left: var(--space-1);
+  width: var(--space-4);
+  height: var(--space-4);
+  border-radius: var(--shape-full);
+  background: var(--outline);
+  transform: translateY(-50%);
+  transition:
+    left var(--motion-duration-short) var(--motion-easing-standard),
+    width var(--motion-duration-short) var(--motion-easing-standard),
+    height var(--motion-duration-short) var(--motion-easing-standard);
+}
+
+.on {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+.on .thumb {
+  left: calc(100% - var(--space-6) - var(--space-1));
+  width: var(--space-6);
+  height: var(--space-6);
+  background: var(--on-primary);
+}
+
+.switch:disabled {
+  cursor: not-allowed;
+  opacity: var(--disabled-content);
+}

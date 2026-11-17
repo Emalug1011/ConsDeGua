@@ -1,11 +1,11 @@
 /**
- * Tema claro u oscuro. Sin preferencia guardada, sigue al sistema (lo resuelve
- * tokens.css con prefers-color-scheme); con preferencia, la fija en <html data-theme>.
+ * Tema claro u oscuro. Con "sistema" no se guarda nada y tokens.css sigue a
+ * prefers-color-scheme; con claro u oscuro se fija en <html data-theme>.
  */
 export type Theme = 'light' | 'dark'
+export type ThemePreference = Theme | 'system'
 
 const STORAGE_KEY = 'constgua:tema'
-const DARK_QUERY = '(prefers-color-scheme: dark)'
 
 export function readStoredTheme(): Theme | null {
   try {
@@ -16,14 +16,8 @@ export function readStoredTheme(): Theme | null {
   }
 }
 
-export function systemTheme(): Theme {
-  return typeof window.matchMedia === 'function' && window.matchMedia(DARK_QUERY).matches
-    ? 'dark'
-    : 'light'
-}
-
-export function effectiveTheme(): Theme {
-  return readStoredTheme() ?? systemTheme()
+export function readThemePreference(): ThemePreference {
+  return readStoredTheme() ?? 'system'
 }
 
 /** Aplica la preferencia guardada; se llama al arrancar, antes de pintar la app. */
@@ -33,19 +27,13 @@ export function applyStoredTheme(): void {
   else delete document.documentElement.dataset.theme
 }
 
-export function saveTheme(theme: Theme): void {
-  document.documentElement.dataset.theme = theme
+export function saveThemePreference(preference: ThemePreference): void {
   try {
-    localStorage.setItem(STORAGE_KEY, theme)
+    if (preference === 'system') localStorage.removeItem(STORAGE_KEY)
+    else localStorage.setItem(STORAGE_KEY, preference)
   } catch {
-    // Sin almacenamiento local el tema dura solo esta sesión.
+    // Sin almacenamiento local la preferencia dura solo esta sesión.
   }
-}
-
-/** Avisa cuando cambia el tema del sistema. Devuelve la función para dejar de escuchar. */
-export function onSystemThemeChange(listener: () => void): () => void {
-  if (typeof window.matchMedia !== 'function') return () => undefined
-  const query = window.matchMedia(DARK_QUERY)
-  query.addEventListener('change', listener)
-  return () => query.removeEventListener('change', listener)
+  if (preference === 'system') delete document.documentElement.dataset.theme
+  else document.documentElement.dataset.theme = preference
 }

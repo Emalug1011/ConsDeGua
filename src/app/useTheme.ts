@@ -1,25 +1,28 @@
 import { useCallback, useSyncExternalStore } from 'react'
-import { effectiveTheme, onSystemThemeChange, saveTheme, type Theme } from './theme'
+import { readThemePreference, saveThemePreference, type ThemePreference } from './theme'
 
 const listeners = new Set<() => void>()
 
 function subscribe(listener: () => void): () => void {
   listeners.add(listener)
-  const stopSystem = onSystemThemeChange(listener)
-  return () => {
-    listeners.delete(listener)
-    stopSystem()
-  }
+  return () => listeners.delete(listener)
 }
 
-/** Tema vigente y función para alternarlo; la elección se recuerda en este navegador. */
-export function useTheme(): { theme: Theme; toggleTheme: () => void } {
-  const theme = useSyncExternalStore(subscribe, effectiveTheme, () => 'light' as Theme)
+/** Preferencia de tema (sistema, claro u oscuro); se recuerda en este navegador. */
+export function useTheme(): {
+  preference: ThemePreference
+  setPreference: (preference: ThemePreference) => void
+} {
+  const preference = useSyncExternalStore(
+    subscribe,
+    readThemePreference,
+    () => 'system' as ThemePreference,
+  )
 
-  const toggleTheme = useCallback(() => {
-    saveTheme(effectiveTheme() === 'dark' ? 'light' : 'dark')
+  const setPreference = useCallback((next: ThemePreference) => {
+    saveThemePreference(next)
     listeners.forEach((listener) => listener())
   }, [])
 
-  return { theme, toggleTheme }
+  return { preference, setPreference }
 }

@@ -1,0 +1,26 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.overline {
+  color: var(--on-surface-variant);
+  font: var(--type-label-medium);
+  letter-spacing: var(--tracking-label-medium);
+}
+
+.title {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  color: var(--primary);
+  font: var(--type-title-medium);
+  letter-spacing: var(--tracking-title-medium);
+}
+
+.epigraph {
+  color: var(--on-surface);
+  font: var(--type-body-large);
+  letter-spacing: var(--tracking-body-large);
+}

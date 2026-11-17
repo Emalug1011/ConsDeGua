@@ -3,6 +3,7 @@ import { cleanup } from '@testing-library/react'
 import { afterEach, beforeEach, vi } from 'vitest'
 import { TEST_USER, setTestUser } from './fakeAuthService'
 import { resetNotes } from './fakeNotesService'
+import { resetSettings } from './fakeSettingsService'
 
 // Las pruebas de componentes nunca hablan con Firebase.
 vi.mock('../features/auth/service', () => import('./fakeAuthService'))
@@ -11,6 +12,7 @@ vi.mock('../features/metrics/service', () => ({
 }))
 vi.mock('../features/metrics/track', () => ({ track: vi.fn() }))
 vi.mock('../features/notes/service', () => import('./fakeNotesService'))
+vi.mock('../features/settings/service', () => import('./fakeSettingsService'))
 
 // jsdom no trae ResizeObserver ni DOMMatrixReadOnly, que usa React Flow.
 class ResizeObserverStub {
@@ -39,6 +41,7 @@ window.scrollTo = vi.fn() as unknown as typeof window.scrollTo
 beforeEach(() => {
   localStorage.clear()
   resetNotes()
+  resetSettings()
   delete document.documentElement.dataset.theme
   setTestUser(TEST_USER)
 })

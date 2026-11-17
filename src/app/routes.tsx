@@ -6,6 +6,7 @@ import { ArticlePage } from '../features/constitution/ArticlePage'
 import { CatalogPage } from '../features/constitution/CatalogPage'
 import { RelationMapPage } from '../features/diagrams/RelationMapPage'
 import { NotesPage } from '../features/notes/NotesPage'
+import { SettingsPage } from '../features/settings/SettingsPage'
 import { AppLayout } from './AppLayout'
 import { NotFoundPage } from './NotFoundPage'
 import { PublicLayout } from './PublicLayout'
@@ -29,6 +30,7 @@ export const routes: RouteObject[] = [
           { path: 'articulo/:id', element: <ArticlePage /> },
           { path: 'relaciones/:id', element: <RelationMapPage /> },
           { path: 'apuntes', element: <NotesPage /> },
+          { path: 'ajustes', element: <SettingsPage /> },
           {
             // El editor (Tiptap) se descarga solo al abrir un apunte.
             path: 'apuntes/:id',

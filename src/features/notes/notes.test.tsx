@@ -46,9 +46,10 @@ describe('Mis apuntes', () => {
     expect(router.state.location.pathname).toMatch(/^\/apuntes\/apunte-/)
   })
 
-  it('se abre desde la barra superior', async () => {
+  it('se abre desde el menú de la cuenta', async () => {
     const user = userEvent.setup()
     const { router } = renderRoute('/')
+    await user.click(screen.getByRole('button', { name: 'Abrir menú de tu cuenta' }))
     await user.click(screen.getByRole('link', { name: 'Mis apuntes' }))
     await waitFor(() => expect(router.state.location.pathname).toBe('/apuntes'))
   })

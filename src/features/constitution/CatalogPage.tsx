@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Button } from '../../ui/Button'
 import { TextField } from '../../ui/TextField'
 import { track } from '../metrics/track'
+import { ContinueReadingCard } from '../settings/ContinueReadingCard'
 import { ArticleList } from './ArticleList'
 import { getCatalogInfo, search } from './catalog'
 import styles from './CatalogPage.module.css'
@@ -40,6 +41,8 @@ export function CatalogPage() {
         </div>
       </header>
       <ConstitutionPartsDialog open={partsOpen} onClose={() => setPartsOpen(false)} />
+
+      <ContinueReadingCard />
 
       <search className={styles.search}>
         <TextField

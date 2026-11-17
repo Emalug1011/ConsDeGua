@@ -62,6 +62,7 @@ describe('inicio de sesión', () => {
     const user = userEvent.setup()
     const { router } = renderRoute('/')
 
+    await user.click(screen.getByRole('button', { name: 'Abrir menú de tu cuenta' }))
     await user.click(screen.getByRole('button', { name: 'Cerrar sesión' }))
 
     expect(signOutUser).toHaveBeenCalledOnce()

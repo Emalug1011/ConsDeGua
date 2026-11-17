@@ -1,0 +1,70 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--shape-md);
+  background: var(--surface-container-low);
+}
+
+.muted {
+  color: var(--on-surface-variant);
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--error);
+}
+
+.fieldset {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.legend {
+  margin-bottom: var(--space-1);
+  padding: 0;
+  color: var(--on-surface-variant);
+  font: var(--type-label-medium);
+  letter-spacing: var(--tracking-label-medium);
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch-target);
+  color: var(--on-surface);
+  font: var(--type-body-large);
+  letter-spacing: var(--tracking-body-large);
+  cursor: pointer;
+}
+
+.radio input {
+  width: var(--space-5);
+  height: var(--space-5);
+  margin: 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: flex-start;
+  min-height: var(--touch-target);
+  font: var(--type-label-large);
+  letter-spacing: var(--tracking-label-large);
+}

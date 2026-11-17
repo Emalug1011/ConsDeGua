@@ -1,0 +1,93 @@
+.container {
+  position: relative;
+}
+
+.avatarButton {
+  display: grid;
+  place-items: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  padding: 0;
+  border: none;
+  border-radius: var(--shape-full);
+  background: transparent;
+  cursor: pointer;
+}
+
+.avatarButton:hover .avatar {
+  outline: var(--selected-border-width) solid var(--outline-variant);
+}
+
+.avatar {
+  width: var(--space-8);
+  height: var(--space-8);
+  border-radius: var(--shape-full);
+  object-fit: cover;
+}
+
+.initial {
+  display: grid;
+  place-items: center;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  font: var(--type-title-medium);
+  letter-spacing: var(--tracking-title-medium);
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  right: 0;
+  z-index: 10;
+  width: max-content;
+  min-width: calc(var(--space-16) * 4);
+  max-width: calc(100vw - 2 * var(--space-4));
+  padding: var(--space-2) 0;
+  border-radius: var(--shape-sm);
+  background: var(--surface-container);
+  color: var(--on-surface);
+  box-shadow: var(--elevation-2);
+}
+
+.identity {
+  padding: var(--space-2) var(--space-4) var(--space-3);
+  border-bottom: var(--border-width) solid var(--outline-variant);
+}
+
+.name {
+  font: var(--type-title-small);
+  letter-spacing: var(--tracking-title-small);
+}
+
+.email {
+  color: var(--on-surface-variant);
+  font: var(--type-body-small);
+  letter-spacing: var(--tracking-body-small);
+  overflow-wrap: anywhere;
+}
+
+.items {
+  list-style: none;
+  padding: var(--space-2) 0 0;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  border: none;
+  background: transparent;
+  color: var(--on-surface);
+  font: var(--type-label-large);
+  letter-spacing: var(--tracking-label-large);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.item:hover {
+  background: color-mix(in srgb, var(--on-surface) var(--state-hover), transparent);
+}
