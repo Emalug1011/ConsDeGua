@@ -1,0 +1,25 @@
+.panel {
+  position: fixed;
+  inset: auto var(--space-2) var(--space-2);
+  z-index: 50;
+  max-height: 40svh;
+  overflow-y: auto;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--shape-sm);
+  background: var(--inverse-surface);
+  color: var(--inverse-on-surface);
+  font: var(--type-label-small);
+  letter-spacing: var(--tracking-label-small);
+  font-family: var(--font-mono);
+}
+
+.heading {
+  margin-bottom: var(--space-1);
+  font-weight: var(--weight-medium);
+}
+
+.lines {
+  margin: 0;
+  padding-left: var(--space-4);
+  overflow-wrap: anywhere;
+}

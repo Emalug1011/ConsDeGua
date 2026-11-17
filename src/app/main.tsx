@@ -4,6 +4,8 @@ import { RouterProvider } from 'react-router/dom'
 import { APP_NAME } from '../config/app'
 import { AuthProvider } from '../features/auth/AuthProvider'
 import '../styles/base.css'
+import { diagnosticsEnabled } from './diagnostics'
+import { DiagnosticsPanel } from './DiagnosticsPanel'
 import { router } from './router'
 import { applyStoredTheme } from './theme'
 
@@ -17,6 +19,7 @@ createRoot(rootElement).render(
   <StrictMode>
     <AuthProvider>
       <RouterProvider router={router} />
+      {diagnosticsEnabled() && <DiagnosticsPanel />}
     </AuthProvider>
   </StrictMode>,
 )

@@ -31,3 +31,9 @@
     padding: var(--space-4) var(--space-6);
   }
 }
+
+.version {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: inherit;
+}

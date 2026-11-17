@@ -31,6 +31,9 @@ export function Dialog({
   const ref = useRef<HTMLDialogElement>(null)
   const body = useRef<HTMLDivElement>(null)
   const titleId = useId()
+  // Si el toque empezó en el fondo del diálogo. En iPhone, el mismo toque que
+  // abre el diálogo puede generar un clic que cae sobre el fondo recién abierto.
+  const pressedOnBackdrop = useRef(false)
 
   useEffect(() => {
     const dialog = ref.current
@@ -49,9 +52,14 @@ export function Dialog({
       className={`${styles.dialog} ${size === 'large' ? styles.large : ''}`}
       aria-labelledby={titleId}
       onClose={onClose}
+      onPointerDown={(event) => {
+        pressedOnBackdrop.current = event.target === event.currentTarget
+      }}
       onClick={(event) => {
-        // Clic en el fondo (fuera del contenido) cierra el diálogo.
-        if (event.target === event.currentTarget) onClose()
+        // Cierra solo si el toque empezó y terminó en el fondo (fuera del contenido).
+        const onBackdrop = pressedOnBackdrop.current && event.target === event.currentTarget
+        pressedOnBackdrop.current = false
+        if (onBackdrop) onClose()
       }}
     >
       <div className={styles.content}>

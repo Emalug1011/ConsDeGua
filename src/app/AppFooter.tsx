@@ -13,6 +13,9 @@ export function AppFooter() {
           {DEVELOPER.email}
         </a>
       </p>
+      <p className={styles.version}>
+        Versión {__APP_VERSION__} · {__BUILD_TIME__}
+      </p>
     </footer>
   )
 }
