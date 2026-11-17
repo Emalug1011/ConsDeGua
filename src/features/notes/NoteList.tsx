@@ -1,4 +1,3 @@
-import { Link } from 'react-router'
 import { getArticle } from '../constitution/catalog'
 import { articleShortLabel } from '../constitution/format'
 import styles from './NoteList.module.css'
@@ -12,11 +11,12 @@ const DATE_FORMAT = new Intl.DateTimeFormat('es-GT', {
 
 interface NoteListProps {
   notes: readonly Note[]
+  onSelect: (note: Note) => void
   /** Muestra el artículo ligado (no hace falta dentro de la vista de un artículo). */
   showArticle?: boolean
 }
 
-export function NoteList({ notes, showArticle = true }: NoteListProps) {
+export function NoteList({ notes, onSelect, showArticle = true }: NoteListProps) {
   return (
     <ul className={styles.list}>
       {notes.map((note) => {
@@ -24,13 +24,13 @@ export function NoteList({ notes, showArticle = true }: NoteListProps) {
         const title = note.title.trim() || 'Sin título'
         return (
           <li key={note.id}>
-            <Link to={`/apuntes/${note.id}`} className={styles.item}>
+            <button type="button" className={styles.item} onClick={() => onSelect(note)}>
               <span className={styles.title}>{title}</span>
               <span className={styles.meta}>
                 {showArticle && article && <span>{articleShortLabel(article)} · </span>}
                 {note.updatedAt ? `Editado ${DATE_FORMAT.format(note.updatedAt)}` : 'Sin guardar'}
               </span>
-            </Link>
+            </button>
           </li>
         )
       })}

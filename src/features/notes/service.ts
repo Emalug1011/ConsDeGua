@@ -50,12 +50,14 @@ function toNote(snapshot: DocumentSnapshot | QueryDocumentSnapshot): Note | null
 }
 
 /** Crea un apunte vacío de la persona y devuelve su id. */
-export async function createNote(ownerId: string, articleId: string | null): Promise<string> {
+/** Crea el apunte con su primer contenido y devuelve su id. */
+export async function createNote(ownerId: string, initial: NoteChanges): Promise<string> {
+  if (noteSize(initial) > NOTE_MAX_BYTES) throw new NoteTooLargeError()
   const ref = await addDoc(collection(db, NOTES), {
     ownerId,
-    title: '',
-    content: EMPTY_NOTE_CONTENT,
-    ...(articleId ? { articleId } : {}),
+    title: initial.title,
+    content: initial.content,
+    ...(initial.articleId ? { articleId: initial.articleId } : {}),
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })

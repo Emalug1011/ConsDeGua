@@ -1,18 +1,19 @@
 import { Button } from '../../ui/Button'
 import { Icon } from '../../ui/Icon'
 import styles from './ArticleNotes.module.css'
+import { NoteDialog } from './NoteDialog'
 import { NoteList } from './NoteList'
-import { useCreateNote } from './useCreateNote'
+import { useNoteDialog } from './useNoteDialog'
 import { useNotes } from './useNotes'
 
 interface ArticleNotesProps {
   articleId: string
 }
 
-/** Apuntes de la persona ligados a un artículo, dentro de la vista del artículo. */
+/** Apuntes de la persona ligados a un artículo; los nuevos se ligan a él automáticamente. */
 export function ArticleNotes({ articleId }: ArticleNotesProps) {
   const notes = useNotes(articleId)
-  const { create, creating, error } = useCreateNote()
+  const dialog = useNoteDialog()
 
   return (
     <section aria-labelledby="mis-apuntes-titulo" className={styles.section}>
@@ -24,7 +25,7 @@ export function ArticleNotes({ articleId }: ArticleNotesProps) {
         <span>Solo tú puedes verlos.</span>
       </p>
       {notes.status === 'ready' && notes.data.length > 0 && (
-        <NoteList notes={notes.data} showArticle={false} />
+        <NoteList notes={notes.data} onSelect={dialog.openNote} showArticle={false} />
       )}
       {notes.status === 'ready' && notes.data.length === 0 && (
         <p className={styles.muted}>Todavía no tienes apuntes de este artículo.</p>
@@ -36,21 +37,12 @@ export function ArticleNotes({ articleId }: ArticleNotesProps) {
         </p>
       )}
       <div>
-        <Button
-          variant="tonal"
-          icon="edit_note"
-          onClick={() => void create(articleId)}
-          disabled={creating}
-        >
+        <Button variant="tonal" icon="edit_note" onClick={() => dialog.openNew(articleId)}>
           Crear apunte
         </Button>
       </div>
-      {error && (
-        <p role="alert" className={styles.error}>
-          <Icon name="error" size="small" />
-          No se pudo crear el apunte. Revisa tu conexión e intenta de nuevo.
-        </p>
-      )}
+
+      <NoteDialog controls={dialog} />
     </section>
   )
 }

@@ -31,13 +31,6 @@ export const routes: RouteObject[] = [
           { path: 'relaciones/:id', element: <RelationMapPage /> },
           { path: 'apuntes', element: <NotesPage /> },
           { path: 'ajustes', element: <SettingsPage /> },
-          {
-            // El editor (Tiptap) se descarga solo al abrir un apunte.
-            path: 'apuntes/:id',
-            lazy: async () => ({
-              Component: (await import('../features/notes/NoteEditorPage')).NoteEditorPage,
-            }),
-          },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

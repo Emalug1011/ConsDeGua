@@ -1,24 +1,8 @@
-.page {
+.form {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-}
-
-.topRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
-
-.back {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  min-height: var(--touch-target);
-  font: var(--type-label-large);
-  letter-spacing: var(--tracking-label-large);
+  color: var(--on-surface);
 }
 
 .status {
@@ -35,13 +19,4 @@
   align-items: center;
   gap: var(--space-1);
   color: var(--error);
-}
-
-.articleLink {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--touch-target);
-  font: var(--type-label-large);
-  letter-spacing: var(--tracking-label-large);
 }

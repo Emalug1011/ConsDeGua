@@ -1,14 +1,15 @@
 import { Button } from '../../ui/Button'
 import { Icon } from '../../ui/Icon'
+import { NoteDialog } from './NoteDialog'
 import { NoteList } from './NoteList'
 import styles from './NotesPage.module.css'
-import { useCreateNote } from './useCreateNote'
+import { useNoteDialog } from './useNoteDialog'
 import { useNotes } from './useNotes'
 
 /** Lista de los apuntes de la persona. Solo ella los ve. */
 export function NotesPage() {
   const notes = useNotes()
-  const { create, creating, error } = useCreateNote()
+  const dialog = useNoteDialog()
 
   return (
     <div className={styles.page}>
@@ -19,16 +20,10 @@ export function NotesPage() {
           <span>Solo tú puedes ver tus apuntes.</span>
         </p>
         <div>
-          <Button icon="add" onClick={() => void create()} disabled={creating}>
+          <Button icon="add" onClick={() => dialog.openNew(null)}>
             Crear apunte
           </Button>
         </div>
-        {error && (
-          <p role="alert" className={styles.error}>
-            <Icon name="error" size="small" />
-            No se pudo crear el apunte. Revisa tu conexión e intenta de nuevo.
-          </p>
-        )}
       </header>
 
       {notes.status === 'loading' && (
@@ -48,8 +43,10 @@ export function NotesPage() {
             Todavía no tienes apuntes. Crea uno aquí o desde cualquier artículo.
           </p>
         ) : (
-          <NoteList notes={notes.data} />
+          <NoteList notes={notes.data} onSelect={dialog.openNote} />
         ))}
+
+      <NoteDialog controls={dialog} />
     </div>
   )
 }
