@@ -13,6 +13,9 @@ export interface EventParams {
   constitution_parts_open: undefined
   structure_map_open: undefined
   relation_map_open: { article_id: string }
+  relation_create: { article_id: string }
+  relation_update: { article_id: string }
+  relation_delete: { article_id: string }
   diagram_create: undefined
   diagram_open: undefined
   diagram_export: undefined

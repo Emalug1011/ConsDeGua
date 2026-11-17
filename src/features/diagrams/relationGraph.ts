@@ -1,6 +1,7 @@
 /**
- * Arma el mapa de relaciones de un artículo a partir del catálogo: el artículo
- * al centro y sus vecinos en un anillo. Es lógica pura; no se guarda en Firestore.
+ * Arma el mapa de relaciones de un artículo a partir del catálogo (y de las
+ * relaciones propias que se le pasen): el artículo al centro y sus vecinos en
+ * un anillo. Es lógica pura; no se guarda en Firestore.
  */
 import type { Edge, Node } from '@xyflow/react'
 import {
@@ -8,14 +9,19 @@ import {
   getArticle,
   getRelated,
   type Article,
+  type RelatedResult,
   type RelatedArticle,
   type RelatedBlock,
 } from '../constitution/catalog'
 import { edgeLabel } from './relationLabels'
 
+export type RelationOrigin = 'catalogo' | 'propias'
+
 export interface RelationFilters {
   tipos: ReadonlySet<string>
+  /** Cotejo de las relaciones del catálogo; no aplica a las propias. */
   cotejos: ReadonlySet<string>
+  origenes: ReadonlySet<RelationOrigin>
 }
 
 export type ArticleNodeData = { article: Article; center: boolean }
@@ -25,6 +31,10 @@ export type RelationEdgeData = {
   cotejo: string
   label: string
   directed: boolean
+  /** Relación propia de la persona (se dibuja con otro estilo). */
+  propia: boolean
+  /** 0 si es la única entre esos dos nodos; 1, 2… para las siguientes, que se curvan. */
+  parallel?: number
   /** Id del marcador de flecha del lienzo donde se dibuja; lo asigna `RelationMap`. */
   markerId?: string
 }
@@ -93,30 +103,51 @@ function ringPosition(index: number, total: number): { x: number; y: number } {
   return { x: Math.round(radius * Math.cos(angle)), y: Math.round(radius * Math.sin(angle)) }
 }
 
-export function buildRelationGraph(articleId: string, filters: RelationFilters): RelationGraph {
+const NO_RELATIONS: RelatedResult = { articulos: [], bloques: [] }
+
+/**
+ * Mapa de un artículo con las relaciones del catálogo y, si se pasan, las
+ * propias de la persona. Las propias se filtran por tipo y origen, no por cotejo.
+ */
+export function buildRelationGraph(
+  articleId: string,
+  filters: RelationFilters,
+  propias: RelatedResult = NO_RELATIONS,
+): RelationGraph {
   const center = getArticle(articleId)
   if (!center) return { nodes: [], edges: [], articulos: [], bloques: [] }
 
-  const related = getRelated(articleId)
-  const articulos = related.articulos.filter((r) => passes(filters, r.tipo, r.cotejo))
-  const bloques = related.bloques.filter((r) => passes(filters, r.tipo, r.cotejo))
+  const catalogo = filters.origenes.has('catalogo') ? getRelated(articleId) : NO_RELATIONS
+  const mine = filters.origenes.has('propias') ? propias : NO_RELATIONS
+  const articulos = [
+    ...catalogo.articulos.filter((r) => passes(filters, r.tipo, r.cotejo)),
+    ...mine.articulos.filter((r) => filters.tipos.has(r.tipo)),
+  ]
+  const bloques = [
+    ...catalogo.bloques.filter((r) => passes(filters, r.tipo, r.cotejo)),
+    ...mine.bloques.filter((r) => filters.tipos.has(r.tipo)),
+  ]
 
   const neighbors: RelationNodeType[] = []
   const edges: RelationEdgeType[] = []
+  const addArticleNode = (article: Article) => {
+    if (neighbors.some((node) => node.id === article.id)) return
+    neighbors.push({
+      id: article.id,
+      type: 'article',
+      position: { x: 0, y: 0 },
+      data: { article, center: false },
+    })
+  }
 
   for (const relation of articulos) {
     const other = relation.articulo
-    neighbors.push({
-      id: other.id,
-      type: 'article',
-      position: { x: 0, y: 0 },
-      data: { article: other, center: false },
-    })
+    addArticleNode(other)
     const outgoing = relation.sentido !== 'entrante'
     const source = outgoing ? center.id : other.id
     const target = outgoing ? other.id : center.id
     edges.push({
-      id: `${source}->${target}`,
+      id: relation.propiaId ? `propia-${relation.propiaId}` : `${source}->${target}`,
       type: 'relation',
       source,
       target,
@@ -125,6 +156,7 @@ export function buildRelationGraph(articleId: string, filters: RelationFilters):
         cotejo: relation.cotejo,
         label: edgeLabel(relation.tipo, relation.cotejo),
         directed: relation.tipo !== UNDIRECTED_RELATION_TYPE,
+        propia: Boolean(relation.propiaId),
       },
     })
   }
@@ -132,35 +164,31 @@ export function buildRelationGraph(articleId: string, filters: RelationFilters):
   for (const relation of bloques) {
     const label = edgeLabel(relation.tipo, relation.cotejo)
     const directed = relation.tipo !== UNDIRECTED_RELATION_TYPE
+    const propia = Boolean(relation.propiaId)
     if (relation.sentido === 'saliente') {
       // El artículo central apunta a un capítulo completo.
       const id = blockNodeId(relation)
-      neighbors.push({
-        id,
-        type: 'block',
-        position: { x: 0, y: 0 },
-        data: { label: blockLabel(relation.bloque) },
-      })
-      edges.push({
-        id: `${center.id}->${id}`,
-        type: 'relation',
-        source: center.id,
-        target: id,
-        data: { tipo: relation.tipo, cotejo: relation.cotejo, label, directed },
-      })
-    } else {
-      // El artículo central forma parte del bloque al que apunta otro artículo.
-      const other = relation.articulo
-      if (!neighbors.some((node) => node.id === other.id)) {
+      if (!neighbors.some((node) => node.id === id)) {
         neighbors.push({
-          id: other.id,
-          type: 'article',
+          id,
+          type: 'block',
           position: { x: 0, y: 0 },
-          data: { article: other, center: false },
+          data: { label: blockLabel(relation.bloque) },
         })
       }
       edges.push({
-        id: `${other.id}->${center.id}-bloque`,
+        id: relation.propiaId ? `propia-${relation.propiaId}` : `${center.id}->${id}`,
+        type: 'relation',
+        source: center.id,
+        target: id,
+        data: { tipo: relation.tipo, cotejo: relation.cotejo, label, directed, propia },
+      })
+    } else {
+      // El artículo central forma parte del capítulo al que apunta otro artículo.
+      const other = relation.articulo
+      addArticleNode(other)
+      edges.push({
+        id: relation.propiaId ? `propia-${relation.propiaId}` : `${other.id}->${center.id}-bloque`,
         type: 'relation',
         source: other.id,
         target: center.id,
@@ -169,9 +197,19 @@ export function buildRelationGraph(articleId: string, filters: RelationFilters):
           cotejo: relation.cotejo,
           label: `${label} · a su capítulo`,
           directed,
+          propia,
         },
       })
     }
+  }
+
+  // Varias relaciones entre los mismos dos nodos: las siguientes se curvan.
+  const seen = new Map<string, number>()
+  for (const edge of edges) {
+    const pair = [edge.source, edge.target].sort().join('|')
+    const count = seen.get(pair) ?? 0
+    seen.set(pair, count + 1)
+    if (count > 0 && edge.data) edge.data.parallel = count
   }
 
   const centerNode: ArticleNodeType = {

@@ -50,3 +50,15 @@
   font: var(--type-body-small);
   letter-spacing: var(--tracking-body-small);
 }
+
+/* Relación propia de la persona: se distingue de las del catálogo. */
+.own {
+  border-color: var(--secondary);
+  background: color-mix(in srgb, var(--secondary-container) 40%, var(--surface));
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}

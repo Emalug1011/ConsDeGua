@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { getRawRelations, getRelated } from '../constitution/catalog'
 import { buildRelationGraph, type RelationFilters } from './relationGraph'
+import { relatedFromMine } from '../relations/combine'
 import { RELATION_TYPE_LABELS, REVIEW_LABELS } from './relationLabels'
 
 const ALL: RelationFilters = {
   tipos: new Set(Object.keys(RELATION_TYPE_LABELS)),
   cotejos: new Set(Object.keys(REVIEW_LABELS)),
+  origenes: new Set(['catalogo', 'propias']),
 }
 
 describe('buildRelationGraph', () => {
@@ -58,5 +60,86 @@ describe('buildRelationGraph', () => {
 
   it('devuelve un grafo vacío para un artículo que no existe', () => {
     expect(buildRelationGraph('999', ALL).nodes).toEqual([])
+  })
+})
+
+describe('buildRelationGraph con relaciones propias', () => {
+  const propias = relatedFromMine('12', [
+    {
+      id: 'r1',
+      desde: '12',
+      hacia: '14',
+      haciaBloque: null,
+      tipo: 'garantia',
+      nota: '',
+      updatedAt: null,
+    },
+    {
+      id: 'r2',
+      desde: '12',
+      hacia: null,
+      haciaBloque: { titulo: 'II', capitulo: 'I' },
+      tipo: 'remision',
+      nota: '',
+      updatedAt: null,
+    },
+  ])
+
+  it('agrega las propias con su estilo y etiqueta "tuya"', () => {
+    const graph = buildRelationGraph('12', ALL, propias)
+    const own = graph.edges.filter((e) => e.data?.propia)
+    expect(own.map((e) => e.id).sort()).toEqual(['propia-r1', 'propia-r2'])
+    expect(own.every((e) => e.data?.label.includes('tuya'))).toBe(true)
+    expect(graph.nodes.some((n) => n.type === 'block')).toBe(true)
+  })
+
+  it('filtra por origen: solo catálogo o solo mías', () => {
+    const onlyCatalog = buildRelationGraph(
+      '12',
+      { ...ALL, origenes: new Set(['catalogo']) },
+      propias,
+    )
+    expect(onlyCatalog.edges.some((e) => e.data?.propia)).toBe(false)
+    const onlyMine = buildRelationGraph('12', { ...ALL, origenes: new Set(['propias']) }, propias)
+    expect(onlyMine.edges.every((e) => e.data?.propia)).toBe(true)
+    expect(onlyMine.edges).toHaveLength(2)
+  })
+
+  it('el artículo dentro del capítulo ve la relación propia como entrante', () => {
+    const inBlock = relatedFromMine('10', [
+      {
+        id: 'r2',
+        desde: '12',
+        hacia: null,
+        haciaBloque: { titulo: 'II', capitulo: 'I' },
+        tipo: 'remision',
+        nota: '',
+        updatedAt: null,
+      },
+    ])
+    expect(inBlock.bloques[0]).toMatchObject({ sentido: 'entrante', propiaId: 'r2' })
+  })
+})
+
+describe('conexiones paralelas', () => {
+  it('curva la segunda relación entre los mismos dos artículos', () => {
+    const catalog = getRelated('12').articulos.find((r) => r.articulo.id === '14')
+    expect(catalog).toBeDefined()
+    const propias = relatedFromMine('12', [
+      {
+        id: 'r1',
+        desde: '12',
+        hacia: '14',
+        haciaBloque: null,
+        tipo: 'garantia',
+        nota: '',
+        updatedAt: null,
+      },
+    ])
+    const edges = buildRelationGraph('12', ALL, propias).edges.filter(
+      (e) => [e.source, e.target].sort().join('|') === '12|14',
+    )
+    expect(edges).toHaveLength(2)
+    expect(edges.map((e) => e.data?.parallel ?? 0).sort()).toEqual([0, 1])
   })
 })

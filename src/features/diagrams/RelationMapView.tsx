@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Icon } from '../../ui/Icon'
-import { getArticle, getRelated } from '../constitution/catalog'
+import { getArticle } from '../constitution/catalog'
 import { articleLabel } from '../constitution/format'
 import { RelationList } from '../constitution/RelationList'
 import { track } from '../metrics/track'
+import { useArticleRelations } from '../relations/useMyRelations'
 import { RelationFilterChips } from './RelationFilterChips'
 import { buildRelationGraph, type RelationFilters } from './relationGraph'
 import { RELATION_TYPE_LABELS, REVIEW_LABELS } from './relationLabels'
@@ -14,6 +15,7 @@ import { RelationSelectContext } from './RelationSelectContext'
 const ALL_FILTERS: RelationFilters = {
   tipos: new Set(Object.keys(RELATION_TYPE_LABELS)),
   cotejos: new Set(Object.keys(REVIEW_LABELS)),
+  origenes: new Set(['catalogo', 'propias']),
 }
 
 interface RelationMapViewProps {
@@ -27,7 +29,11 @@ interface RelationMapViewProps {
 /** Mapa de relaciones de un artículo con sus filtros y la lista accesible. */
 export function RelationMapView({ centerId, onSelect, inDialog = false }: RelationMapViewProps) {
   const [filters, setFilters] = useState<RelationFilters>(ALL_FILTERS)
-  const graph = useMemo(() => buildRelationGraph(centerId, filters), [centerId, filters])
+  const { catalogo, propias } = useArticleRelations(centerId)
+  const graph = useMemo(
+    () => buildRelationGraph(centerId, filters, propias),
+    [centerId, filters, propias],
+  )
   const center = getArticle(centerId)
 
   useEffect(() => {
@@ -36,8 +42,12 @@ export function RelationMapView({ centerId, onSelect, inDialog = false }: Relati
 
   if (!center) return null
 
-  const related = getRelated(center.id)
-  const hasRelations = related.articulos.length > 0 || related.bloques.length > 0
+  const hasRelations =
+    catalogo.articulos.length +
+      catalogo.bloques.length +
+      propias.articulos.length +
+      propias.bloques.length >
+    0
   const visible = graph.articulos.length + graph.bloques.length
   const ListHeading = inDialog ? 'h3' : 'h2'
 

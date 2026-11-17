@@ -162,3 +162,13 @@ button.node:hover {
   white-space: nowrap;
   pointer-events: none;
 }
+
+/* Relaciones propias de la persona: otro color y etiqueta "tuya". */
+.edgeOwn {
+  stroke: var(--secondary);
+}
+
+.edgeLabelOwn {
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
+}

@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { Button } from '../../ui/Button'
 import type { Article, RelatedArticle, RelatedBlock } from './catalog'
 import { articleLabel, articleShortLabel, relationPhrase } from './format'
 import styles from './RelationList.module.css'
@@ -7,6 +8,9 @@ import { ReviewChip } from './ReviewChip'
 type RelationListProps = {
   articulos: readonly RelatedArticle[]
   bloques: readonly RelatedBlock[]
+  /** Si se pasan, las relaciones propias muestran "Editar" y "Eliminar". */
+  onEditOwn?: (relationId: string) => void
+  onDeleteOwn?: (relationId: string) => void
 } & (
   | {
       /** Destino del enlace de cada artículo relacionado. */
@@ -25,7 +29,31 @@ function accessibleName(article: Article): string {
 }
 
 /** Lista de relaciones con su frase, su nota y su nivel de cotejo. */
-export function RelationList({ articulos, bloques, linkTo, onSelect }: RelationListProps) {
+export function RelationList({
+  articulos,
+  bloques,
+  linkTo,
+  onSelect,
+  onEditOwn,
+  onDeleteOwn,
+}: RelationListProps) {
+  const ownActions = (relationId: string | undefined) =>
+    relationId &&
+    (onEditOwn || onDeleteOwn) && (
+      <div className={styles.actions}>
+        {onEditOwn && (
+          <Button variant="text" icon="edit" onClick={() => onEditOwn(relationId)}>
+            Editar
+          </Button>
+        )}
+        {onDeleteOwn && (
+          <Button variant="text" icon="delete" onClick={() => onDeleteOwn(relationId)}>
+            Eliminar
+          </Button>
+        )}
+      </div>
+    )
+
   const target = (article: Article) => {
     const content = (
       <>
@@ -56,20 +84,24 @@ export function RelationList({ articulos, bloques, linkTo, onSelect }: RelationL
     <ul className={styles.list}>
       {articulos.map((relation) => (
         <li
-          key={`${relation.articulo.id}-${relation.tipo}-${relation.sentido}`}
-          className={styles.item}
+          key={relation.propiaId ?? `${relation.articulo.id}-${relation.tipo}-${relation.sentido}`}
+          className={`${styles.item} ${relation.propiaId ? styles.own : ''}`}
         >
           <p className={styles.phrase}>{relationPhrase(relation.tipo, relation.sentido)}</p>
           {target(relation.articulo)}
-          <p className={styles.note}>{relation.nota}</p>
+          {relation.nota && <p className={styles.note}>{relation.nota}</p>}
           <div>
             <ReviewChip cotejo={relation.cotejo} />
           </div>
+          {ownActions(relation.propiaId)}
         </li>
       ))}
 
       {bloques.map((relation) => (
-        <li key={`bloque-${relation.articulo.id}-${relation.tipo}`} className={styles.item}>
+        <li
+          key={relation.propiaId ?? `bloque-${relation.articulo.id}-${relation.tipo}`}
+          className={`${styles.item} ${relation.propiaId ? styles.own : ''}`}
+        >
           <p className={styles.phrase}>
             {relation.sentido === 'saliente'
               ? `${relationPhrase(relation.tipo, 'saliente')} el bloque`
@@ -80,10 +112,11 @@ export function RelationList({ articulos, bloques, linkTo, onSelect }: RelationL
             {relation.bloque.desdeArticulo} a {relation.bloque.hastaArticulo})
           </p>
           {relation.sentido === 'entrante' && target(relation.articulo)}
-          <p className={styles.note}>{relation.nota}</p>
+          {relation.nota && <p className={styles.note}>{relation.nota}</p>}
           <div>
             <ReviewChip cotejo={relation.cotejo} />
           </div>
+          {ownActions(relation.propiaId)}
         </li>
       ))}
     </ul>

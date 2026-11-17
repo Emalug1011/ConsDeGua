@@ -1,4 +1,6 @@
 import { Chip } from '../../ui/Chip'
+import { relatedFromMine } from '../relations/combine'
+import { useMyRelations } from '../relations/useMyRelations'
 import { getRelated, type Article } from './catalog'
 import { articleLabel, articleLocation, relationPhrase } from './format'
 import styles from './RelationPreview.module.css'
@@ -13,9 +15,15 @@ interface RelationPreviewProps {
 
 /** Vista previa de un artículo relacionado: ubicación, relación con el de origen y texto. */
 export function RelationPreview({ article, context }: RelationPreviewProps) {
-  const related = getRelated(context.id)
-  const articulos = related.articulos.filter((r) => r.articulo.id === article.id)
-  const bloques = related.bloques.filter((r) => r.articulo.id === article.id)
+  const mine = useMyRelations()
+  const catalogo = getRelated(context.id)
+  const propias = relatedFromMine(context.id, mine)
+  const articulos = [...catalogo.articulos, ...propias.articulos].filter(
+    (r) => r.articulo.id === article.id,
+  )
+  const bloques = [...catalogo.bloques, ...propias.bloques].filter(
+    (r) => r.articulo.id === article.id,
+  )
 
   return (
     <>
@@ -32,18 +40,21 @@ export function RelationPreview({ article, context }: RelationPreviewProps) {
       {(articulos.length > 0 || bloques.length > 0) && (
         <section aria-label={`Relación con ${articleLabel(context)}`} className={styles.relations}>
           {articulos.map((relation) => (
-            <div key={`${relation.tipo}-${relation.sentido}`} className={styles.relation}>
+            <div
+              key={relation.propiaId ?? `${relation.tipo}-${relation.sentido}`}
+              className={styles.relation}
+            >
               <p className={styles.phrase}>{relationPhrase(relation.tipo, relation.sentido)}</p>
-              <p className={styles.note}>{relation.nota}</p>
+              {relation.nota && <p className={styles.note}>{relation.nota}</p>}
               <div>
                 <ReviewChip cotejo={relation.cotejo} />
               </div>
             </div>
           ))}
           {bloques.map((relation) => (
-            <div key={`bloque-${relation.tipo}`} className={styles.relation}>
+            <div key={relation.propiaId ?? `bloque-${relation.tipo}`} className={styles.relation}>
               <p className={styles.phrase}>{relationPhrase(relation.tipo, 'entrante')} su bloque</p>
-              <p className={styles.note}>{relation.nota}</p>
+              {relation.nota && <p className={styles.note}>{relation.nota}</p>}
               <div>
                 <ReviewChip cotejo={relation.cotejo} />
               </div>

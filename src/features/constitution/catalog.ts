@@ -179,6 +179,8 @@ export interface RelatedArticle {
   nota: string
   cotejo: string
   sentido: RelationDirection
+  /** Si es una relación propia de la persona (no del catálogo), su id en Firestore. */
+  propiaId?: string
 }
 
 export interface RelatedBlock {
@@ -190,6 +192,8 @@ export interface RelatedBlock {
   cotejo: string
   /** `saliente` si el artículo consultado es el que apunta al bloque; `entrante` si forma parte del bloque. */
   sentido: Exclude<RelationDirection, 'sin_direccion'>
+  /** Si es una relación propia de la persona (no del catálogo), su id en Firestore. */
+  propiaId?: string
 }
 
 export interface RelatedResult {
@@ -199,6 +203,8 @@ export interface RelatedResult {
 
 export const UNDIRECTED_RELATION_TYPE = 'tematica'
 export const LITERAL_CITATION = 'cita_textual'
+/** Valor de `cotejo` con el que se marcan las relaciones propias de la persona. */
+export const OWN_RELATION = 'propia'
 
 function requireArticle(id: string): Article {
   const article = getArticle(id)
@@ -206,7 +212,19 @@ function requireArticle(id: string): Article {
   return article
 }
 
-function isInBlock(article: Article, block: BlockRelation['haciaBloque']): boolean {
+/** Capítulo completo con su rango de artículos, calculado del catálogo. */
+export function getBlock(
+  titulo: string,
+  capitulo: string,
+): BlockRelation['haciaBloque'] | undefined {
+  const articles = listByBlock({ titulo, capitulo })
+  const first = articles[0]
+  const last = articles[articles.length - 1]
+  if (!first || !last) return undefined
+  return { titulo, capitulo, desdeArticulo: first.id, hastaArticulo: last.id }
+}
+
+export function isInBlock(article: Article, block: BlockRelation['haciaBloque']): boolean {
   if (article.transitorio) return false
   const value = Number(article.id)
   return value >= Number(block.desdeArticulo) && value <= Number(block.hastaArticulo)
@@ -249,6 +267,11 @@ export function getRelated(id: string): RelatedResult {
   }
 
   return { articulos, bloques }
+}
+
+/** Definición de cada tipo de relación, tal como la trae el catálogo. */
+export function getRelationTypeDefinitions(): Readonly<Record<string, string>> {
+  return catalog.relaciones.tipos
 }
 
 /** Solo para pruebas de integridad del catálogo. */

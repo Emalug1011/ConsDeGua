@@ -108,5 +108,49 @@ service cloud.firestore {
         && request.resource.data.updatedAt == request.time
         && isValidNote(request.resource.data);
     }
+
+    function isRelationType(value) {
+      return value in ['remision', 'desarrollo', 'garantia', 'limite', 'tematica'];
+    }
+
+    // Capítulo completo: título I a VIII y número de capítulo ("I", "Único"...).
+    function isBlock(value) {
+      return value is map
+        && hasExactly(value, ['titulo', 'capitulo'])
+        && value.titulo in ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
+        && value.capitulo is string && value.capitulo.size() > 0 && value.capitulo.size() <= 10;
+    }
+
+    function isValidRelation(data) {
+      return data.keys().hasAll(['ownerId', 'desde', 'tipo', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['ownerId', 'desde', 'hacia', 'haciaBloque', 'tipo', 'nota',
+             'createdAt', 'updatedAt'])
+        && isArticleId(data.desde)
+        && isRelationType(data.tipo)
+        && (!('nota' in data) || (data.nota is string && data.nota.size() <= 500))
+        // Exactamente uno: otro artículo o un capítulo completo.
+        && (('hacia' in data) != ('haciaBloque' in data))
+        && (!('hacia' in data) || (isArticleId(data.hacia) && data.hacia != data.desde))
+        && (!('haciaBloque' in data) || isBlock(data.haciaBloque));
+    }
+
+    // Relaciones propias: cada persona ve y edita solo las suyas.
+    match /relations/{relationId} {
+      allow read, delete: if signedInWithGoogle()
+        && resource.data.ownerId == request.auth.uid;
+
+      allow create: if signedInWithGoogle()
+        && request.resource.data.ownerId == request.auth.uid
+        && isValidRelation(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      allow update: if signedInWithGoogle()
+        && resource.data.ownerId == request.auth.uid
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time
+        && isValidRelation(request.resource.data);
+    }
   }
 }

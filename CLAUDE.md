@@ -19,16 +19,16 @@ Tiene inicio de sesión por SSO y métricas de uso. Interfaz en español (Guatem
 
 Confirmadas por Emanuel el 16 de noviembre de 2026: la columna "Suposición actual" es la decisión vigente. Si alguna cambia, se actualiza esta tabla antes de construir encima.
 
-| Tema                    | Suposición actual                                                                                                                                            | Alternativas                                                                               |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| Origen de los diagramas | Dos tipos: el mapa de estructura, generado de los datos y de solo lectura, y diagramas propios que cada persona arma sobre uno o varios artículos            | Solo diagramas prearmados por el equipo; diagramas generados automáticamente del texto     |
-| Mapa de relaciones      | Vista de solo lectura generada de `relaciones` del catálogo: al elegir un artículo se muestran sus vecinos, con filtro por tipo de relación                  | Mapa global de todos los artículos a la vez; permitir que cada persona proponga relaciones |
-| Motor de diagramas      | Nodos y conexiones con React Flow; un nodo puede representar un artículo                                                                                     | Mermaid a partir de texto, dibujo libre                                                    |
-| Catálogo de artículos   | Archivo JSON versionado en el repositorio (`src/data/constitucion.json`); Firestore guarda solo datos de las personas                                        | Colección `articles` en Firestore, de solo lectura para el cliente                         |
-| Texto literal           | El catálogo trae el texto de cada artículo, cotejado completo contra el PDF el 16/11/2026; la interfaz lo muestra sin aviso de revisión ni nota de la fuente | Ocultar el texto hasta terminar el cotejo                                                  |
-| Editor de apuntes       | Texto enriquecido con Tiptap, guardado como JSON                                                                                                             | Markdown plano                                                                             |
-| Alcance de los datos    | Cada persona ve solo sus diagramas y apuntes                                                                                                                 | Compartir con otras personas, diagramas públicos                                           |
-| Repaso y quiz           | Fuera del alcance inicial; el prototipo anterior ya tiene repetición espaciada y quiz, y se pueden migrar después                                            | Incluirlos desde la primera versión                                                        |
+| Tema                    | Suposición actual                                                                                                                                                                                                             | Alternativas                                                                               |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Origen de los diagramas | Dos tipos: el mapa de estructura, generado de los datos y de solo lectura, y diagramas propios que cada persona arma sobre uno o varios artículos                                                                             | Solo diagramas prearmados por el equipo; diagramas generados automáticamente del texto     |
+| Mapa de relaciones      | Vista de solo lectura generada de `relaciones` del catálogo: al elegir un artículo se muestran sus vecinos, con filtro por tipo de relación Incluye las relaciones propias de la persona, distinguidas y con filtro de origen | Mapa global de todos los artículos a la vez; permitir que cada persona proponga relaciones |
+| Motor de diagramas      | Nodos y conexiones con React Flow; un nodo puede representar un artículo                                                                                                                                                      | Mermaid a partir de texto, dibujo libre                                                    |
+| Catálogo de artículos   | Archivo JSON versionado en el repositorio (`src/data/constitucion.json`); Firestore guarda solo datos de las personas                                                                                                         | Colección `articles` en Firestore, de solo lectura para el cliente                         |
+| Texto literal           | El catálogo trae el texto de cada artículo, cotejado completo contra el PDF el 16/11/2026; la interfaz lo muestra sin aviso de revisión ni nota de la fuente                                                                  | Ocultar el texto hasta terminar el cotejo                                                  |
+| Editor de apuntes       | Texto enriquecido con Tiptap, guardado como JSON                                                                                                                                                                              | Markdown plano                                                                             |
+| Alcance de los datos    | Cada persona ve solo sus diagramas y apuntes                                                                                                                                                                                  | Compartir con otras personas, diagramas públicos                                           |
+| Repaso y quiz           | Fuera del alcance inicial; el prototipo anterior ya tiene repetición espaciada y quiz, y se pueden migrar después                                                                                                             | Incluirlos desde la primera versión                                                        |
 
 ## Contenido jurídico
 
@@ -57,7 +57,7 @@ Reglas:
 - Ese análisis **no es fuente oficial ni doctrina**: se elaboró con asistencia de IA y está marcado `verificado: false`. La interfaz no muestra el texto de `relaciones.advertencia` (decisión de Emanuel del 16/11/2026): en la lista y en el mapa muestra solo el aviso "Validar sugerencia", presenta como "relación sugerida" todo lo que no sea `cita_textual` y permite filtrar por `cotejo`.
 - No agregues, quites ni reescribas relaciones por tu cuenta. Los cambios al análisis los decide Emanuel; tú solo los aplicas cuando te los pida, artículo por artículo.
 - Una prueba valida que todo `desde` y `hacia` exista en el catálogo, que no haya pares duplicados y que cada `tipo` y cada `cotejo` estén definidos.
-- Las relaciones que agregue una persona en sus propios diagramas viven en Firestore, dentro de su diagrama, y nunca se mezclan con las del catálogo.
+- Cada persona puede crear sus propias relaciones (decisión de Emanuel del 17/11/2026): viven en Firestore en `relations` (ver "Modelo de datos"), son privadas como los apuntes, usan solo los 5 tipos del catálogo y pueden ir hacia otro artículo o hacia un capítulo completo. Se muestran junto a las del catálogo, marcadas como "Tu relación" y con otro estilo en el mapa (filtro "Origen": Catálogo / Mías), pero nunca se mezclan con el catálogo ni lo modifican.
 
 ## Stack
 
@@ -131,6 +131,10 @@ diagrams/{diagramId}
   ownerId, title, articleIds[], nodes[], edges[], viewport, createdAt, updatedAt
   # nodo: { id, type: "article" | "concept" | "group", articleId?, label?, position }
 
+relations/{relationId}
+  ownerId, desde, hacia? | haciaBloque? { titulo, capitulo }, tipo, nota?, createdAt, updatedAt
+  # exactamente uno entre hacia y haciaBloque; el rango del capítulo se calcula del catálogo
+
 notes/{noteId}
   ownerId, title, content (JSON de Tiptap), articleId?, diagramId?, createdAt, updatedAt
   # diagramId todavía no se usa: se agrega a las reglas cuando existan los diagramas propios
@@ -167,7 +171,7 @@ Objetivo: saber cuántas personas usan la app (por día, semana y mes) y qué fu
 
 - **Conteo confiable, en Firestore:** al iniciar sesión, y como máximo una vez por día por persona, crea `metrics_daily/{yyyy-mm-dd}/users/{uid}` y actualiza `users/{uid}.lastSeenAt`. Personas activas por día = cantidad de documentos de ese día (consulta de agregación `count()` desde consola o un script de administración, no desde el cliente).
 - **Comportamiento, en Firebase Analytics:** llama siempre a `track(evento, params)` de `features/metrics/track.ts`; nunca a `logEvent` directo. Analytics puede estar bloqueado por el navegador, por eso no es la fuente del conteo de personas.
-- Eventos iniciales: `login`, `article_open`, `article_search`, `constitution_parts_open`, `structure_map_open`, `relation_map_open`, `diagram_create`, `diagram_open`, `diagram_export`, `note_create`, `note_open`. Los eventos de artículo llevan `article_id` para saber qué partes de la Constitución se estudian más. Agrega eventos nuevos a la lista de `track.ts`, con nombres en `snake_case`.
+- Eventos iniciales: `login`, `article_open`, `article_search`, `constitution_parts_open`, `structure_map_open`, `relation_map_open`, `relation_create`, `relation_update`, `relation_delete`, `diagram_create`, `diagram_open`, `diagram_export`, `note_create`, `note_open`. Los eventos de artículo llevan `article_id` para saber qué partes de la Constitución se estudian más. Agrega eventos nuevos a la lista de `track.ts`, con nombres en `snake_case`.
 - **Privacidad:** ningún evento lleva contenido de diagramas o apuntes, títulos, términos de búsqueda, correos ni nombres. Solo ids y conteos.
 - La fecha del día se calcula en la zona `America/Guatemala`.
 
