@@ -42,6 +42,34 @@ export interface RelationGraph {
   bloques: RelatedBlock[]
 }
 
+/**
+ * Medidas de un nodo para encuadrar el mapa sin esperar a medirlos en pantalla.
+ * El ancho coincide con `.node` en RelationMap.module.css (`--space-16` × 3);
+ * el alto es el de un nodo con epígrafe de dos líneas.
+ */
+export const NODE_WIDTH = 192
+export const NODE_HEIGHT = 96
+
+/** Rectángulo que ocupan los nodos (sus posiciones son el centro de cada nodo). */
+export function graphBounds(nodes: readonly { position: { x: number; y: number } }[]): {
+  x: number
+  y: number
+  width: number
+  height: number
+} {
+  if (nodes.length === 0) return { x: 0, y: 0, width: NODE_WIDTH, height: NODE_HEIGHT }
+  const xs = nodes.map((node) => node.position.x)
+  const ys = nodes.map((node) => node.position.y)
+  const minX = Math.min(...xs) - NODE_WIDTH / 2
+  const minY = Math.min(...ys) - NODE_HEIGHT / 2
+  return {
+    x: minX,
+    y: minY,
+    width: Math.max(...xs) + NODE_WIDTH / 2 - minX,
+    height: Math.max(...ys) + NODE_HEIGHT / 2 - minY,
+  }
+}
+
 const RING_RADIUS = 340
 const WIDE_RING_RADIUS = 400
 

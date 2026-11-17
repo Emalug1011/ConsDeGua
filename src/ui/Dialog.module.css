@@ -50,6 +50,11 @@
   color: var(--on-surface-variant);
 }
 
+/* El navegador puede enfocar el área con scroll: el anillo va por dentro para no cortarse. */
+.body:focus-visible {
+  outline-offset: calc(-1 * var(--focus-ring-width));
+}
+
 .actions {
   display: flex;
   flex-shrink: 0;

@@ -66,7 +66,7 @@ export function RelationExplorerDialog({ explorer }: RelationExplorerDialogProps
         <RelationMapView
           key={contentKey}
           centerId={article.id}
-          listHeadingLevel={3}
+          inDialog
           onSelect={(relatedId) =>
             explorer.push({ kind: 'preview', articleId: relatedId, contextId: article.id })
           }

@@ -7,6 +7,11 @@
   overflow: hidden;
 }
 
+/* Dentro de un diálogo: más bajo, para que el mapa se vea completo sin desplazarse. */
+.compact {
+  height: min(50dvh, calc(var(--space-16) * 7));
+}
+
 .defs {
   position: absolute;
   width: 0;

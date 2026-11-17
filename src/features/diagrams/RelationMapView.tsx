@@ -20,16 +20,12 @@ interface RelationMapViewProps {
   centerId: string
   /** Al tocar un artículo vecino (en el lienzo o en la lista). */
   onSelect: (articleId: string) => void
-  /** Nivel del encabezado de la lista: 2 en una página, 3 dentro de un diálogo. */
-  listHeadingLevel?: 2 | 3
+  /** Dentro de un diálogo: encabezado de nivel 3 y lienzo más bajo. */
+  inDialog?: boolean
 }
 
 /** Mapa de relaciones de un artículo con sus filtros y la lista accesible. */
-export function RelationMapView({
-  centerId,
-  onSelect,
-  listHeadingLevel = 2,
-}: RelationMapViewProps) {
+export function RelationMapView({ centerId, onSelect, inDialog = false }: RelationMapViewProps) {
   const [filters, setFilters] = useState<RelationFilters>(ALL_FILTERS)
   const graph = useMemo(() => buildRelationGraph(centerId, filters), [centerId, filters])
   const center = getArticle(centerId)
@@ -43,7 +39,7 @@ export function RelationMapView({
   const related = getRelated(center.id)
   const hasRelations = related.articulos.length > 0 || related.bloques.length > 0
   const visible = graph.articulos.length + graph.bloques.length
-  const ListHeading = listHeadingLevel === 3 ? 'h3' : 'h2'
+  const ListHeading = inDialog ? 'h3' : 'h2'
 
   return (
     <div className={styles.view}>
@@ -69,6 +65,7 @@ export function RelationMapView({
                 nodes={graph.nodes}
                 edges={graph.edges}
                 label={`Mapa de relaciones de ${articleLabel(center)}`}
+                compact={inDialog}
               />
             </RelationSelectContext>
           )}
