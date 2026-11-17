@@ -1,6 +1,5 @@
 import { FirebaseError } from 'firebase/app'
 import {
-  addDoc,
   collection,
   deleteDoc,
   deleteField,
@@ -10,6 +9,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  setDoc,
   updateDoc,
   where,
   type DocumentSnapshot,
@@ -49,11 +49,17 @@ function toNote(snapshot: DocumentSnapshot | QueryDocumentSnapshot): Note | null
   }
 }
 
-/** Crea un apunte vacío de la persona y devuelve su id. */
-/** Crea el apunte con su primer contenido y devuelve su id. */
-export async function createNote(ownerId: string, initial: NoteChanges): Promise<string> {
+/**
+ * Crea el apunte con su primer contenido. Devuelve el id al instante y la
+ * escritura aparte: sin internet, la escritura queda pendiente hasta reconectar.
+ */
+export function createNote(
+  ownerId: string,
+  initial: NoteChanges,
+): { id: string; write: Promise<void> } {
   if (noteSize(initial) > NOTE_MAX_BYTES) throw new NoteTooLargeError()
-  const ref = await addDoc(collection(db, NOTES), {
+  const ref = doc(collection(db, NOTES))
+  const write = setDoc(ref, {
     ownerId,
     title: initial.title,
     content: initial.content,
@@ -61,7 +67,7 @@ export async function createNote(ownerId: string, initial: NoteChanges): Promise
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
-  return ref.id
+  return { id: ref.id, write }
 }
 
 /** Guarda título, contenido y artículo. Rechaza apuntes que no caben en un documento. */

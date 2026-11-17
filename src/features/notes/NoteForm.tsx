@@ -4,6 +4,7 @@ import { Button } from '../../ui/Button'
 import { Dialog } from '../../ui/Dialog'
 import { Icon } from '../../ui/Icon'
 import { TextField } from '../../ui/TextField'
+import { whenSaved } from '../../lib/whenSaved'
 import { track } from '../metrics/track'
 import { NoteEditor } from './NoteEditor'
 import styles from './NoteForm.module.css'
@@ -16,6 +17,7 @@ const STATUS_TEXT: Record<SaveStatus, string> = {
   pending: 'Cambios sin guardar',
   saving: 'Guardando…',
   saved: 'Guardado',
+  local: 'Guardado en este dispositivo. Se sincronizará al volver la conexión.',
   error: 'No se pudo guardar. Revisa tu conexión e intenta de nuevo.',
   too_large: 'El apunte es demasiado grande para guardarse. Acórtalo o divídelo en varios apuntes.',
 }
@@ -64,7 +66,7 @@ export function NoteForm({
     if (!savedId) return
     cancel()
     try {
-      await deleteNote(savedId)
+      await whenSaved(deleteNote(savedId))
       setConfirmDelete(false)
       onDeleted()
     } catch {

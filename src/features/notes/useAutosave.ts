@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { whenSaved } from '../../lib/whenSaved'
 import { track } from '../metrics/track'
 import { createNote, updateNote } from './service'
 import { NoteTooLargeError, type NoteChanges } from './types'
 
-export type SaveStatus = 'idle' | 'pending' | 'saving' | 'saved' | 'error' | 'too_large'
+export type SaveStatus = 'idle' | 'pending' | 'saving' | 'saved' | 'local' | 'error' | 'too_large'
 
 /** Espera tras el último cambio antes de guardar (la guía pide de 1 a 2 segundos). */
 export const AUTOSAVE_DELAY_MS = 1500
@@ -44,14 +45,18 @@ export function useAutosave({ ownerId, noteId, onCreated }: AutosaveOptions) {
     pending.current = null
     setStatus('saving')
     try {
+      let result
       if (id.current) {
-        await updateNote(id.current, changes)
+        result = await whenSaved(updateNote(id.current, changes))
       } else {
-        id.current = await createNote(ownerId, changes)
+        const creation = createNote(ownerId, changes)
+        id.current = creation.id
         track('note_create')
         created.current?.(id.current)
+        result = await whenSaved(creation.write)
       }
-      setStatus(pending.current ? 'pending' : 'saved')
+      // Sin internet queda guardado en el dispositivo y se sincroniza al volver.
+      setStatus(pending.current ? 'pending' : result === 'local' ? 'local' : 'saved')
     } catch (error) {
       pending.current ??= changes
       setStatus(error instanceof NoteTooLargeError ? 'too_large' : 'error')

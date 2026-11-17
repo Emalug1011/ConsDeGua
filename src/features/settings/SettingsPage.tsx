@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { useTheme } from '../../app/useTheme'
+import { whenSaved } from '../../lib/whenSaved'
 import type { ThemePreference } from '../../app/theme'
 import { Icon } from '../../ui/Icon'
 import { Switch } from '../../ui/Switch'
@@ -8,6 +9,7 @@ import { useAuth } from '../auth/useAuth'
 import { getArticle } from '../constitution/catalog'
 import { articleLabel } from '../constitution/format'
 import { setRememberReading } from './service'
+import { InstallAppSection } from './InstallAppSection'
 import styles from './SettingsPage.module.css'
 import { useUserSettings } from './useUserSettings'
 
@@ -32,7 +34,7 @@ export function SettingsPage() {
     setSaving(true)
     setError(false)
     try {
-      await setRememberReading(user.uid, enabled)
+      await whenSaved(setRememberReading(user.uid, enabled))
     } catch {
       setError(true)
     } finally {
@@ -74,6 +76,8 @@ export function SettingsPage() {
           </p>
         )}
       </section>
+
+      <InstallAppSection />
 
       <section aria-labelledby="ajustes-apariencia" className={styles.section}>
         <h2 id="ajustes-apariencia" className="title-medium">

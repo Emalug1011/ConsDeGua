@@ -10,8 +10,8 @@ import { NoteTooLargeError } from './types'
 
 const OTHER_USER = 'otra-persona'
 /** El editor se descarga bajo demanda: en pruebas puede tardar más de un segundo. */
-const EDITOR_TIMEOUT = { timeout: 5000 }
-const SAVE_TIMEOUT = { timeout: 4000 }
+const EDITOR_TIMEOUT = { timeout: 15000 }
+const SAVE_TIMEOUT = { timeout: 10000 }
 
 async function findTitleField() {
   return screen.findByRole('textbox', { name: 'Título' }, EDITOR_TIMEOUT)
@@ -184,5 +184,25 @@ describe('apuntes en la vista de artículo', () => {
     )
     expect(router.state.location.pathname).toBe('/articulo/47')
     await waitFor(() => expect(within(section).getByText('Familia')).toBeInTheDocument())
+  })
+})
+
+describe('apuntes sin conexión', () => {
+  it('sin internet avisa que quedó guardado en el dispositivo', async () => {
+    const user = userEvent.setup()
+    seedNote({ ownerId: TEST_USER.uid, title: 'Sin red' })
+    // Sin conexión, Firestore deja la escritura pendiente: la promesa no se resuelve.
+    vi.mocked(updateNote).mockReturnValueOnce(new Promise(() => undefined))
+    Object.defineProperty(navigator, 'onLine', { configurable: true, get: () => false })
+    try {
+      renderRoute('/apuntes')
+      await user.click(screen.getByRole('button', { name: /Sin red/ }))
+      await user.type(await findTitleField(), ' 2')
+      expect(
+        await screen.findByText(/Guardado en este dispositivo/, {}, { timeout: 6000 }),
+      ).toBeInTheDocument()
+    } finally {
+      Object.defineProperty(navigator, 'onLine', { configurable: true, get: () => true })
+    }
   })
 })

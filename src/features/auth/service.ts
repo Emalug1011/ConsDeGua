@@ -8,7 +8,15 @@ import {
   signOut,
   type User,
 } from 'firebase/auth'
-import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
+import {
+  clearIndexedDbPersistence,
+  doc,
+  getDoc,
+  serverTimestamp,
+  setDoc,
+  terminate,
+  updateDoc,
+} from 'firebase/firestore'
 import { auth, db } from '../../config/firebase'
 import type { AuthUser, SignInResult } from './types'
 
@@ -55,8 +63,19 @@ export async function completeRedirectSignIn(): Promise<boolean> {
   return result !== null
 }
 
+/**
+ * Cierra la sesión y borra de este dispositivo la copia local de apuntes y
+ * relaciones. Recarga en /ingresar porque Firestore queda cerrado.
+ */
 export async function signOutUser(): Promise<void> {
   await signOut(auth)
+  try {
+    await terminate(db)
+    await clearIndexedDbPersistence(db)
+  } catch {
+    // Si otra pestaña de ConstGua sigue abierta, la caché no se puede borrar ahora.
+  }
+  window.location.assign('/ingresar')
 }
 
 /** Crea `users/{uid}` en el primer ingreso; en los siguientes actualiza `lastSeenAt`. */

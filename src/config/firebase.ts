@@ -5,7 +5,12 @@
 import { getAnalytics, isSupported, type Analytics } from 'firebase/analytics'
 import { initializeApp, type FirebaseOptions } from 'firebase/app'
 import { connectAuthEmulator, getAuth } from 'firebase/auth'
-import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
+import {
+  connectFirestoreEmulator,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from 'firebase/firestore'
 
 function required(name: keyof ImportMetaEnv, value: string | undefined): string {
   if (!value) {
@@ -33,7 +38,12 @@ const useEmulators = env.VITE_USE_EMULATORS === 'true'
 
 export const firebaseApp = initializeApp(firebaseOptions)
 export const auth = getAuth(firebaseApp)
-export const db = getFirestore(firebaseApp)
+// Caché local: apuntes y relaciones se leen y editan sin internet y se sincronizan
+// al volver la conexión. Varias pestañas comparten la misma caché. Si el navegador
+// no permite IndexedDB, Firestore sigue funcionando solo en línea.
+export const db = initializeFirestore(firebaseApp, {
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+})
 
 if (useEmulators) {
   connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true })

@@ -21,6 +21,7 @@ export interface EventParams {
   diagram_export: undefined
   note_create: undefined
   note_open: undefined
+  app_install: undefined
 }
 
 export type EventName = keyof EventParams

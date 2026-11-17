@@ -171,7 +171,7 @@ Objetivo: saber cuántas personas usan la app (por día, semana y mes) y qué fu
 
 - **Conteo confiable, en Firestore:** al iniciar sesión, y como máximo una vez por día por persona, crea `metrics_daily/{yyyy-mm-dd}/users/{uid}` y actualiza `users/{uid}.lastSeenAt`. Personas activas por día = cantidad de documentos de ese día (consulta de agregación `count()` desde consola o un script de administración, no desde el cliente).
 - **Comportamiento, en Firebase Analytics:** llama siempre a `track(evento, params)` de `features/metrics/track.ts`; nunca a `logEvent` directo. Analytics puede estar bloqueado por el navegador, por eso no es la fuente del conteo de personas.
-- Eventos iniciales: `login`, `article_open`, `article_search`, `constitution_parts_open`, `structure_map_open`, `relation_map_open`, `relation_create`, `relation_update`, `relation_delete`, `diagram_create`, `diagram_open`, `diagram_export`, `note_create`, `note_open`. Los eventos de artículo llevan `article_id` para saber qué partes de la Constitución se estudian más. Agrega eventos nuevos a la lista de `track.ts`, con nombres en `snake_case`.
+- Eventos iniciales: `login`, `article_open`, `article_search`, `constitution_parts_open`, `structure_map_open`, `relation_map_open`, `relation_create`, `relation_update`, `relation_delete`, `diagram_create`, `diagram_open`, `diagram_export`, `note_create`, `note_open`, `app_install`. Los eventos de artículo llevan `article_id` para saber qué partes de la Constitución se estudian más. Agrega eventos nuevos a la lista de `track.ts`, con nombres en `snake_case`.
 - **Privacidad:** ningún evento lleva contenido de diagramas o apuntes, títulos, términos de búsqueda, correos ni nombres. Solo ids y conteos.
 - La fecha del día se calcula en la zona `America/Guatemala`.
 
@@ -208,6 +208,17 @@ Nodos del diagrama: artículo en tarjeta delineada (`surface`, borde `outline-va
 - Etiquetas de botón: verbo o verbo más objeto, de una a tres palabras.
 - Sin emoji ni signos de exclamación.
 - Los errores dicen qué pasó y qué hacer: "No se pudo guardar. Revisa tu conexión e intenta de nuevo."
+
+## PWA y versión para Android
+
+Por ahora hay dos versiones con el mismo código: la web y la app de Android (TWA, pendiente de generar con Bubblewrap). iPhone usa la web en el navegador, sin nada específico.
+
+- `vite-plugin-pwa` genera el manifiesto y el service worker (configuración en `vite.config.ts`). Los íconos de `public/icons/` (192, 512 y adaptable de 512) se generan del dibujo de `src/ui/brandMark.ts`; si cambia el logotipo, regenéralos.
+- El service worker precarga la app completa, incluido el catálogo: la Constitución, el índice, la búsqueda y el mapa funcionan sin internet. Nunca intercepta `/__/` (inicio de sesión de Firebase).
+- Actualizaciones con aviso: `UpdatePrompt` muestra "Hay una versión nueva" y la persona decide cuándo; no recargar solo.
+- Firestore usa caché local persistente (`config/firebase.ts`): apuntes, relaciones y ajustes se leen y editan sin conexión y se sincronizan al volver. Al cerrar sesión se borra esa copia del dispositivo.
+- Toda escritura que la interfaz espere pasa por `whenSaved` (`src/lib/whenSaved.ts`): sin conexión la promesa de Firestore no se resuelve, y `whenSaved` responde `local` para mostrar "Guardado en este dispositivo".
+- "Instalar la app" en Ajustes solo aparece donde el navegador lo permite (`beforeinstallprompt`, Chrome en Android y escritorio).
 
 ## Accesibilidad
 

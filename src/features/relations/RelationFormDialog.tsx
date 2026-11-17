@@ -14,6 +14,7 @@ import {
 } from '../constitution/catalog'
 import { articleLabel, articleShortLabel } from '../constitution/format'
 import { relationTypeLabel } from '../diagrams/relationLabels'
+import { whenSaved } from '../../lib/whenSaved'
 import { track } from '../metrics/track'
 import styles from './RelationFormDialog.module.css'
 import { createRelation, updateRelation } from './service'
@@ -165,10 +166,10 @@ export function RelationFormDialog({
     setError(false)
     try {
       if (relation) {
-        await updateRelation(relation.id, candidate)
+        await whenSaved(updateRelation(relation.id, candidate))
         track('relation_update', { article_id: candidate.desde })
       } else {
-        await createRelation(user.uid, candidate)
+        await whenSaved(createRelation(user.uid, candidate))
         track('relation_create', { article_id: candidate.desde })
       }
       onClose()

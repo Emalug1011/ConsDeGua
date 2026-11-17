@@ -71,9 +71,9 @@ export function seedNote(note: Partial<Note> & { ownerId: string }): string {
   return id
 }
 
-export const createNote = vi.fn(async (ownerId: string, initial: NoteChanges): Promise<string> => {
+export const createNote = vi.fn((ownerId: string, initial: NoteChanges) => {
   if (noteSize(initial) > NOTE_MAX_BYTES) throw new NoteTooLargeError()
-  return seedNote({ ownerId, ...initial })
+  return { id: seedNote({ ownerId, ...initial }), write: Promise.resolve() }
 })
 
 export const updateNote = vi.fn(async (noteId: string, changes: NoteChanges): Promise<void> => {

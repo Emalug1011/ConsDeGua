@@ -6,6 +6,7 @@ import { AppLogo } from '../ui/AppLogo'
 import { AccountMenu } from './AccountMenu'
 import { AppFooter } from './AppFooter'
 import styles from './AppLayout.module.css'
+import { OfflineBanner } from './OfflineBanner'
 
 export function AppLayout() {
   return (
@@ -22,6 +23,7 @@ export function AppLayout() {
             </Link>
             <AccountMenu />
           </header>
+          <OfflineBanner />
           <main id="contenido" className={styles.content} tabIndex={-1}>
             <Outlet />
           </main>

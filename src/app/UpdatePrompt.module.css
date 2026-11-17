@@ -1,0 +1,28 @@
+/* Snackbar de Material 3: superficie inversa, acción en inverse-primary. */
+.snackbar {
+  position: fixed;
+  left: 50%;
+  bottom: var(--space-4);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: max-content;
+  max-width: calc(100% - 2 * var(--space-4));
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-4);
+  border-radius: var(--shape-xs);
+  background: var(--inverse-surface);
+  color: var(--inverse-on-surface);
+  box-shadow: var(--elevation-3);
+  font: var(--type-body-medium);
+  letter-spacing: var(--tracking-body-medium);
+  transform: translateX(-50%);
+}
+
+.snackbar button {
+  color: var(--inverse-primary);
+}
+
+.snackbar button:last-child {
+  color: var(--inverse-on-surface);
+}

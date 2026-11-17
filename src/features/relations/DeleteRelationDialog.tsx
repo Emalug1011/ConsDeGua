@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Button } from '../../ui/Button'
 import { Dialog } from '../../ui/Dialog'
 import { Icon } from '../../ui/Icon'
+import { whenSaved } from '../../lib/whenSaved'
 import { track } from '../metrics/track'
 import styles from './RelationFormDialog.module.css'
 import { deleteRelation } from './service'
@@ -19,7 +20,7 @@ export function DeleteRelationDialog({ relation, onClose }: DeleteRelationDialog
   const confirm = async () => {
     if (!relation) return
     try {
-      await deleteRelation(relation.id)
+      await whenSaved(deleteRelation(relation.id))
       track('relation_delete', { article_id: relation.desde })
       setError(false)
       onClose()

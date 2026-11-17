@@ -15,6 +15,14 @@ vi.mock('../features/metrics/track', () => ({ track: vi.fn() }))
 vi.mock('../features/notes/service', () => import('./fakeNotesService'))
 vi.mock('../features/settings/service', () => import('./fakeSettingsService'))
 vi.mock('../features/relations/service', () => import('./fakeRelationsService'))
+// El service worker no existe en jsdom: el registro de la PWA se simula.
+vi.mock('virtual:pwa-register/react', () => ({
+  useRegisterSW: vi.fn(() => ({
+    needRefresh: [false, vi.fn()],
+    offlineReady: [false, vi.fn()],
+    updateServiceWorker: vi.fn(),
+  })),
+}))
 
 // jsdom no trae ResizeObserver ni DOMMatrixReadOnly, que usa React Flow.
 class ResizeObserverStub {
