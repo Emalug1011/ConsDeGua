@@ -6,7 +6,7 @@ export function AppFooter() {
   return (
     <footer className={styles.footer}>
       <p>
-        {APP_NAME} · Desarrollado por <span className={styles.alias}>{DEVELOPER.alias}</span>
+        {APP_NAME} · Un proyecto de <span className={styles.brand}>{DEVELOPER.brand}</span>
       </p>
       <p>
         <a href={`mailto:${DEVELOPER.email}`} className={styles.link}>

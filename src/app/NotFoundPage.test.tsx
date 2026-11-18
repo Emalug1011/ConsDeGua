@@ -24,7 +24,7 @@ describe('pie de página', () => {
   it('muestra los datos del desarrollador en las páginas con sesión', () => {
     renderRoute('/articulo/1')
     const footer = screen.getByRole('contentinfo')
-    expect(footer).toHaveTextContent('Desarrollado por emalug')
+    expect(footer).toHaveTextContent('Un proyecto de EmaLUG Labs')
     expect(screen.getByRole('link', { name: 'emazariegos98@gmail.com' })).toHaveAttribute(
       'href',
       'mailto:emazariegos98@gmail.com',
@@ -35,6 +35,6 @@ describe('pie de página', () => {
     setTestUser(null)
     renderRoute('/ingresar')
     await screen.findByRole('button', { name: 'Ingresar con Google' })
-    expect(screen.getByRole('contentinfo')).toHaveTextContent('Desarrollado por emalug')
+    expect(screen.getByRole('contentinfo')).toHaveTextContent('Un proyecto de EmaLUG Labs')
   })
 })
