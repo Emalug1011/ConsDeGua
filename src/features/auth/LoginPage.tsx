@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Navigate, useLocation } from 'react-router'
+import { Navigate, useLocation, useSearchParams } from 'react-router'
 import { APP_NAME } from '../../config/app'
 import { AppLogo } from '../../ui/AppLogo'
 import { Button } from '../../ui/Button'
@@ -15,6 +15,8 @@ const SIGN_IN_ERROR = 'No se pudo iniciar sesión. Revisa tu conexión e intenta
 export function LoginPage() {
   const { status } = useAuth()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const accountDeleted = searchParams.get('cuenta') === 'eliminada'
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -52,6 +54,11 @@ export function LoginPage() {
         <p className={styles.lead}>
           Estudia la Constitución Política de la República de Guatemala.
         </p>
+        {accountDeleted && (
+          <p role="status" className={styles.lead}>
+            Tu cuenta y tus datos se eliminaron.
+          </p>
+        )}
         <Button
           variant="filled"
           icon="login"

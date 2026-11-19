@@ -23,6 +23,7 @@ import {
   setDoc,
   updateDoc,
   where,
+  writeBatch,
   type Firestore,
 } from 'firebase/firestore'
 import { readFileSync } from 'node:fs'
@@ -162,9 +163,15 @@ describe('users/{uid}', () => {
     )
   })
 
-  it('no se puede borrar el perfil', async () => {
+  it('la persona borra su perfil al eliminar su cuenta', async () => {
     await seedProfile(ALICE)
-    await assertFails(deleteDoc(doc(googleDb(ALICE), 'users', ALICE)))
+    await assertSucceeds(deleteDoc(doc(googleDb(ALICE), 'users', ALICE)))
+  })
+
+  it('nadie borra el perfil de otra persona', async () => {
+    await seedProfile(ALICE)
+    await assertFails(deleteDoc(doc(googleDb(BOB), 'users', ALICE)))
+    await assertFails(deleteDoc(doc(anonymousDb(), 'users', ALICE)))
   })
 })
 
@@ -402,5 +409,32 @@ describe('notes/{noteId}', () => {
   it('la persona borra su apunte', async () => {
     await seedNote('n1', ALICE)
     await assertSucceeds(deleteDoc(doc(googleDb(ALICE), 'notes', 'n1')))
+  })
+
+  describe('eliminar la cuenta', () => {
+    it('la persona borra en lote todos sus apuntes y su perfil', async () => {
+      await seedProfile(ALICE)
+      await seedNote('n1', ALICE)
+      await seedNote('n2', ALICE)
+      await seedNote('n3', BOB)
+      const db = googleDb(ALICE)
+      const mine = await getDocs(
+        query(collection(db, 'notes'), where('ownerId', '==', ALICE), limit(200)),
+      )
+      const batch = writeBatch(db)
+      mine.docs.forEach((note) => batch.delete(note.ref))
+      batch.delete(doc(db, 'users', ALICE))
+      await assertSucceeds(batch.commit())
+    })
+
+    it('un lote que incluye un apunte ajeno se rechaza completo', async () => {
+      await seedNote('n1', ALICE)
+      await seedNote('n3', BOB)
+      const db = googleDb(ALICE)
+      const batch = writeBatch(db)
+      batch.delete(doc(db, 'notes', 'n1'))
+      batch.delete(doc(db, 'notes', 'n3'))
+      await assertFails(batch.commit())
+    })
   })
 })

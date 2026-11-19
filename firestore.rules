@@ -71,7 +71,8 @@ service cloud.firestore {
              || !('lastReadAt' in request.resource.data)
              || request.resource.data.lastReadAt == request.time);
 
-      allow delete: if false;
+      // Solo al eliminar la cuenta, junto con sus apuntes y relaciones.
+      allow delete: if isSelf(uid);
     }
 
     // Un documento por persona por día. Nadie lo lee ni lo cambia desde el cliente.

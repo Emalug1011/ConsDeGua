@@ -7,3 +7,6 @@ export interface AuthUser {
 }
 
 export type SignInResult = 'signed_in' | 'cancelled' | 'redirecting'
+
+/** Resultado de eliminar la cuenta; los demás errores se lanzan. */
+export type DeleteAccountResult = 'deleted' | 'cancelled' | 'popup_blocked' | 'wrong_account'

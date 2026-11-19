@@ -114,7 +114,8 @@ firebase.json
 - El único proveedor es **Google**, con Firebase Authentication (`GoogleAuthProvider`). Decisión confirmada: no agregues Microsoft, Apple, correo y contraseña, enlace mágico ni inicio anónimo, y no dejes otros proveedores habilitados en la consola de Firebase.
 - No hay registro con correo y contraseña ni recuperación de contraseña. La pantalla de ingreso tiene un solo botón: "Ingresar con Google".
 - Usa `signInWithPopup` y, si el navegador bloquea la ventana, `signInWithRedirect`.
-- Toda ruta salvo `/ingresar` exige sesión. La guarda vive en `features/auth/RequireAuth.tsx`.
+- Toda ruta salvo `/ingresar`, `/privacidad` y `/eliminar-cuenta` exige sesión. La guarda vive en `features/auth/RequireAuth.tsx`. Las dos últimas son públicas porque Google Play exige leerlas sin cuenta (política de privacidad y cómo eliminar la cuenta) y no muestran contenido de la Constitución.
+- Eliminar la cuenta (Ajustes, decisión de Emanuel del 19/11/2026): Google pide confirmar la identidad (`reauthenticateWithPopup`), se borran apuntes, relaciones propias y `users/{uid}`, luego la cuenta de Authentication y la copia local. Necesita conexión. Los documentos de `metrics_daily` se conservan: sin `users/{uid}` ni cuenta, el uid ya no identifica a nadie. Si cambia lo que se guarda, actualiza `PrivacyPage` y `DeleteAccountInfoPage` en `features/legal/`.
 - Al primer ingreso crea `users/{uid}`; en cada ingreso actualiza `lastSeenAt` (ver "Métricas").
 - Las reglas de Firestore exigen `request.auth.token.firebase.sign_in_provider == "google.com"` además de la sesión.
 - Por ahora entra cualquier cuenta de Google. Si más adelante se restringe a un dominio, valida el dominio en las reglas de Firestore con `request.auth.token.email` y `email_verified`, no solo en el cliente.
@@ -160,7 +161,7 @@ Reglas del modelo:
 
 - Negar todo por defecto. Cada colección se abre de forma explícita.
 - `diagrams` y `notes`: leer y escribir solo si `request.auth.uid == resource.data.ownerId`; al crear, `request.resource.data.ownerId == request.auth.uid`; `ownerId` no se puede cambiar.
-- `users/{uid}`: solo su dueño.
+- `users/{uid}`: solo su dueño, que también puede borrarlo (al eliminar su cuenta).
 - `metrics_daily/{day}/users/{uid}`: cada persona crea únicamente su propio documento; nadie lo lee desde el cliente.
 - Valida tipos y tamaños en las reglas (por ejemplo, largo máximo de `title`, y que `articleId` tenga el formato de un id del catálogo).
 - Todo cambio de reglas va con su prueba en `test:rules`: un caso que debe pasar y uno que debe fallar.
@@ -171,7 +172,7 @@ Objetivo: saber cuántas personas usan la app (por día, semana y mes) y qué fu
 
 - **Conteo confiable, en Firestore:** al iniciar sesión, y como máximo una vez por día por persona, crea `metrics_daily/{yyyy-mm-dd}/users/{uid}` y actualiza `users/{uid}.lastSeenAt`. Personas activas por día = cantidad de documentos de ese día (consulta de agregación `count()` desde consola o un script de administración, no desde el cliente).
 - **Comportamiento, en Firebase Analytics:** llama siempre a `track(evento, params)` de `features/metrics/track.ts`; nunca a `logEvent` directo. Analytics puede estar bloqueado por el navegador, por eso no es la fuente del conteo de personas.
-- Eventos iniciales: `login`, `article_open`, `article_search`, `constitution_parts_open`, `structure_map_open`, `relation_map_open`, `relation_create`, `relation_update`, `relation_delete`, `diagram_create`, `diagram_open`, `diagram_export`, `note_create`, `note_open`, `app_install`. Los eventos de artículo llevan `article_id` para saber qué partes de la Constitución se estudian más. Agrega eventos nuevos a la lista de `track.ts`, con nombres en `snake_case`.
+- Eventos iniciales: `login`, `article_open`, `article_search`, `constitution_parts_open`, `structure_map_open`, `relation_map_open`, `relation_create`, `relation_update`, `relation_delete`, `diagram_create`, `diagram_open`, `diagram_export`, `note_create`, `note_open`, `app_install`, `account_delete`. Los eventos de artículo llevan `article_id` para saber qué partes de la Constitución se estudian más. Agrega eventos nuevos a la lista de `track.ts`, con nombres en `snake_case`.
 - **Privacidad:** ningún evento lleva contenido de diagramas o apuntes, títulos, términos de búsqueda, correos ni nombres. Solo ids y conteos.
 - La fecha del día se calcula en la zona `America/Guatemala`.
 
@@ -218,6 +219,7 @@ Por ahora hay dos versiones con el mismo código: la web y la app de Android (TW
 - Actualizaciones con aviso: `UpdatePrompt` muestra "Hay una versión nueva" y la persona decide cuándo; no recargar solo.
 - Firestore usa caché local persistente (`config/firebase.ts`): apuntes, relaciones y ajustes se leen y editan sin conexión y se sincronizan al volver. Al cerrar sesión se borra esa copia del dispositivo.
 - Toda escritura que la interfaz espere pasa por `whenSaved` (`src/lib/whenSaved.ts`): sin conexión la promesa de Firestore no se resuelve, y `whenSaved` responde `local` para mostrar "Guardado en este dispositivo".
+- La app de Android (paquete `com.emaluglabs.constgua`) se genera con Bubblewrap fuera del repositorio; la llave de firma nunca se versiona. `public/.well-known/assetlinks.json` lleva la huella SHA-256 de la llave para que la TWA abra sin barra de direcciones; por eso `firebase.json` no ignora archivos que empiezan con punto. Al subirla a Play hay que agregar también la huella de la firma de apps de Google Play.
 - "Instalar la app" en Ajustes solo aparece donde el navegador lo permite (`beforeinstallprompt`, Chrome en Android y escritorio).
 
 ## Accesibilidad

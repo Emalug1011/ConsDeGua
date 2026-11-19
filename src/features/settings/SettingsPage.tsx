@@ -9,6 +9,7 @@ import { useAuth } from '../auth/useAuth'
 import { getArticle } from '../constitution/catalog'
 import { articleLabel } from '../constitution/format'
 import { setRememberReading } from './service'
+import { DeleteAccountSection } from './DeleteAccountSection'
 import { InstallAppSection } from './InstallAppSection'
 import styles from './SettingsPage.module.css'
 import { useUserSettings } from './useUserSettings'
@@ -110,6 +111,8 @@ export function SettingsPage() {
           Ir a mis apuntes
         </Link>
       </section>
+
+      <DeleteAccountSection />
     </div>
   )
 }

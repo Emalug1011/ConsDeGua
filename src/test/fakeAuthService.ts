@@ -3,7 +3,7 @@
  * ninguna prueba de componentes habla con Firebase.
  */
 import { vi } from 'vitest'
-import type { AuthUser, SignInResult } from '../features/auth/types'
+import type { AuthUser, DeleteAccountResult, SignInResult } from '../features/auth/types'
 
 export const TEST_USER: AuthUser = {
   uid: 'persona-prueba',
@@ -39,3 +39,10 @@ export const signOutUser = vi.fn(async (): Promise<void> => {
 })
 
 export const ensureUserProfile = vi.fn(async (): Promise<void> => undefined)
+
+export const deleteAccount = vi.fn(async (): Promise<DeleteAccountResult> => {
+  setTestUser(null)
+  return 'deleted'
+})
+
+export const leaveAfterAccountDeletion = vi.fn(async (): Promise<void> => undefined)

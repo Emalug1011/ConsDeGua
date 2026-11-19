@@ -1,7 +1,12 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
-import { TEST_USER, setTestUser } from '../../test/fakeAuthService'
+import {
+  TEST_USER,
+  deleteAccount,
+  leaveAfterAccountDeletion,
+  setTestUser,
+} from '../../test/fakeAuthService'
 import { resetSettings } from '../../test/fakeSettingsService'
 import { renderRoute } from '../../test/renderRoute'
 import { getArticle } from '../constitution/catalog'
@@ -119,5 +124,50 @@ describe('continuar leyendo', () => {
     resetSettings({ rememberReading: false, lastArticleId: null })
     renderRoute('/')
     expect(screen.queryByText('Continúa donde te quedaste')).not.toBeInTheDocument()
+  })
+})
+
+describe('eliminar la cuenta', () => {
+  it('pide confirmación, elimina la cuenta y sale de este dispositivo', async () => {
+    const user = userEvent.setup()
+    renderRoute('/ajustes')
+    await user.click(screen.getByRole('button', { name: 'Eliminar cuenta' }))
+
+    const dialog = screen.getByRole('dialog', { name: '¿Eliminar tu cuenta?' })
+    await user.click(within(dialog).getByRole('button', { name: 'Eliminar cuenta' }))
+
+    await waitFor(() => expect(leaveAfterAccountDeletion).toHaveBeenCalled())
+    expect(deleteAccount).toHaveBeenCalledTimes(1)
+  })
+
+  it('cancelar no elimina nada', async () => {
+    const user = userEvent.setup()
+    renderRoute('/ajustes')
+    await user.click(screen.getByRole('button', { name: 'Eliminar cuenta' }))
+    const dialog = screen.getByRole('dialog', { name: '¿Eliminar tu cuenta?' })
+    await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }))
+    expect(deleteAccount).not.toHaveBeenCalled()
+  })
+
+  it('explica qué hacer si el navegador bloquea la ventana de Google', async () => {
+    const user = userEvent.setup()
+    deleteAccount.mockResolvedValueOnce('popup_blocked')
+    renderRoute('/ajustes')
+    await user.click(screen.getByRole('button', { name: 'Eliminar cuenta' }))
+    const dialog = screen.getByRole('dialog', { name: '¿Eliminar tu cuenta?' })
+    await user.click(within(dialog).getByRole('button', { name: 'Eliminar cuenta' }))
+
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+      'Tu navegador bloqueó la ventana de Google',
+    )
+    expect(leaveAfterAccountDeletion).not.toHaveBeenCalled()
+  })
+
+  it('después de eliminarla, la pantalla de ingreso lo confirma', async () => {
+    setTestUser(null)
+    renderRoute('/ingresar?cuenta=eliminada')
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'Tu cuenta y tus datos se eliminaron.',
+    )
   })
 })

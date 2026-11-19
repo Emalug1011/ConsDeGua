@@ -5,6 +5,9 @@ import { RequireAuth } from '../features/auth/RequireAuth'
 import { ArticlePage } from '../features/constitution/ArticlePage'
 import { CatalogPage } from '../features/constitution/CatalogPage'
 import { RelationMapPage } from '../features/diagrams/RelationMapPage'
+import { DeleteAccountInfoPage } from '../features/legal/DeleteAccountInfoPage'
+import { DELETE_ACCOUNT_INFO_PATH, PRIVACY_PATH } from '../features/legal/paths'
+import { PrivacyPage } from '../features/legal/PrivacyPage'
 import { NotesPage } from '../features/notes/NotesPage'
 import { SettingsPage } from '../features/settings/SettingsPage'
 import { AppLayout } from './AppLayout'
@@ -16,7 +19,12 @@ export const routes: RouteObject[] = [
   {
     element: <PublicLayout />,
     errorElement: <RouteError />,
-    children: [{ path: LOGIN_PATH, element: <LoginPage /> }],
+    children: [
+      { path: LOGIN_PATH, element: <LoginPage /> },
+      // Públicas sin sesión: Google Play pide poder leerlas sin cuenta.
+      { path: PRIVACY_PATH, element: <PrivacyPage /> },
+      { path: DELETE_ACCOUNT_INFO_PATH, element: <DeleteAccountInfoPage /> },
+    ],
   },
   {
     path: '/',

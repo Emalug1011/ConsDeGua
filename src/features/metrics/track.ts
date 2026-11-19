@@ -22,6 +22,7 @@ export interface EventParams {
   note_create: undefined
   note_open: undefined
   app_install: undefined
+  account_delete: undefined
 }
 
 export type EventName = keyof EventParams
